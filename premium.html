@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프리미엄 건어물 - 진성네이처푸드</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .category-hero {
+            background: linear-gradient(135deg, var(--deep-blue) 0%, #004d99 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .category-hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .category-hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .category-filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 12px 30px;
+            border: 2px solid var(--deep-blue);
+            background: white;
+            color: var(--deep-blue);
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: var(--deep-blue);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: var(--deep-blue);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+        }
+
+        .no-products {
+            text-align: center;
+            padding: 100px 20px;
+            color: #666;
+        }
+
+        .no-products h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1 class="logo"><a href="index.html" style="text-decoration:none; color:inherit;">JINSUNG<span>NATURE
+                        FOOD</span></a></h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">홈으로</a></li>
+                    <li><a href="premium.html"
+                            style="color: var(--deep-blue); border-bottom: 2px solid var(--mint-green);">프리미엄 건어물</a>
+                    </li>
+                    <li><a href="#">선물세트</a></li>
+                    <li><a href="story.html">산지직송 스토리</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                <button class="icon-btn">🔍</button>
+                <button class="icon-btn">👤</button>
+                <button class="icon-btn">🛒 <span class="badge">0</span></button>
+            </div>
+        </div>
+    </header>
+
+    <div class="category-hero">
+        <div class="container">
+            <h2>프리미엄 건어물 🌊</h2>
+            <p>대한민국 청정 바다에서 자연 건조한 최고급 건어물</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="category-filters">
+            <button class="filter-btn active" data-category="all">전체</button>
+            <button class="filter-btn" data-category="김/미역/다시마">김/미역/다시마</button>
+            <button class="filter-btn" data-category="멸치">멸치</button>
+            <button class="filter-btn" data-category="건어물">건어물</button>
+        </div>
+
+        <div class="product-grid" id="productGrid">
+            <!-- Products will be rendered here by JavaScript -->
+        </div>
+
+        <div class="no-products" id="noProducts" style="display: none;">
+            <h3>해당 카테고리의 상품이 없습니다</h3>
+            <p>곧 새로운 상품이 추가될 예정입니다 😊</p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Jinsung Nature Food. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        let currentCategory = 'all';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPremiumProducts();
+
+            // Filter button event listeners
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    // Add active class to clicked button
+                    btn.classList.add('active');
+
+                    // Set current category and re-render
+                    currentCategory = btn.dataset.category;
+                    renderPremiumProducts();
+                });
+            });
+        });
+
+        function renderPremiumProducts() {
+            const productGrid = document.getElementById('productGrid');
+            const noProducts = document.getElementById('noProducts');
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+
+            // Filter products by category
+            let filteredProducts = products;
+            if (currentCategory !== 'all') {
+                filteredProducts = products.filter(p => p.category === currentCategory);
+            }
+
+            if (filteredProducts.length === 0) {
+                productGrid.style.display = 'none';
+                noProducts.style.display = 'block';
+                return;
+            }
+
+            productGrid.style.display = 'grid';
+            noProducts.style.display = 'none';
+            productGrid.innerHTML = '';
+
+            filteredProducts.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+
+                const priceFormatted = new Intl.NumberFormat('ko-KR').format(product.price);
+                const discountBadge = product.discount ? `<span>${product.discount}</span>` : '';
+
+                card.innerHTML = `
+                    <div class="image-placeholder" style="background-image: url('${product.image}'); cursor: pointer;" onclick="location.href='detail.html?id=${product.id}'"></div>
+                    <h4 style="cursor: pointer;" onclick="location.href='detail.html?id=${product.id}'">${product.name}</h4>
+                    <p class="price">₩${priceFormatted} ${discountBadge}</p>
+                    <button class="add-cart" onclick="addToCart('${product.name}')">담기</button>
+                `;
+                productGrid.appendChild(card);
+            });
+        }
+    </script>
+</body>
+
+</html>

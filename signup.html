@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - 진성네이처푸드</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .auth-container {
+            max-width: 450px;
+            margin: 80px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .auth-container h2 {
+            text-align: center;
+            color: var(--deep-blue);
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--deep-blue);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--deep-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: #004d99;
+            transform: translateY(-2px);
+        }
+
+        .auth-links {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .auth-links a {
+            color: var(--deep-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1 class="logo"><a href="index.html" style="text-decoration:none; color:inherit;">JINSUNG<span>NATURE
+                        FOOD</span></a></h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">홈으로</a></li>
+                    <li><a href="premium.html">프리미엄 건어물</a></li>
+                    <li><a href="gifts.html">선물세트</a></li>
+                    <li><a href="story.html">산지직송 스토리</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                <button class="icon-btn" onclick="location.href='search.html'">🔍</button>
+                <button class="icon-btn" onclick="location.href='login.html'">👤</button>
+                <button class="icon-btn" onclick="location.href='cart.html'">🛒 <span class="badge">0</span></button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="auth-container">
+            <h2>회원가입</h2>
+            <div class="error-message" id="errorMessage"></div>
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="name">이름</label>
+                    <input type="text" id="name" name="name" required placeholder="홍길동">
+                </div>
+                <div class="form-group">
+                    <label for="email">이메일</label>
+                    <input type="email" id="email" name="email" required placeholder="example@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="phone">전화번호</label>
+                    <input type="tel" id="phone" name="phone" required placeholder="010-1234-5678">
+                </div>
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" required placeholder="8자 이상 입력">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">비밀번호 확인</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="비밀번호 재입력">
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms" style="margin-bottom: 0;">이용약관 및 개인정보 처리방침에 동의합니다</label>
+                </div>
+                <button type="submit" class="submit-btn">회원가입</button>
+            </form>
+            <div class="auth-links">
+                <p>이미 회원이신가요? <a href="login.html">로그인</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Jinsung Nature Food. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const terms = document.getElementById('terms').checked;
+
+            const errorMsg = document.getElementById('errorMessage');
+
+            // Validation
+            if (password.length < 8) {
+                errorMsg.textContent = '비밀번호는 8자 이상이어야 합니다.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                errorMsg.textContent = '비밀번호가 일치하지 않습니다.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            if (!terms) {
+                errorMsg.textContent = '이용약관에 동의해주세요.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Get existing users
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+
+            // Check if email already exists
+            if (users.find(u => u.email === email)) {
+                errorMsg.textContent = '이미 가입된 이메일입니다.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Add new user
+            const newUser = {
+                name,
+                email,
+                phone,
+                password,
+                registeredAt: new Date().toISOString()
+            };
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+
+            alert('회원가입이 완료되었습니다! 🎉\n로그인 페이지로 이동합니다.');
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+
+</html>

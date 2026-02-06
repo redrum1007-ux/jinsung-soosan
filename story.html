@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>산지직송 스토리 - 진성네이처푸드</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&family=Nanum+Myeongjo:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Story Page Specific Styles */
+        .story-hero {
+            height: 60vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1505118380757-91f5f5632de0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            /* Parallax effect */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            margin-bottom: 80px;
+        }
+
+        .story-hero h2 {
+            font-family: 'Nanum Myeongjo', serif;
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .story-hero p {
+            font-size: 1.3rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        .story-section {
+            padding: 80px 0;
+            display: flex;
+            align-items: center;
+            gap: 60px;
+            opacity: 0;
+            /* For fade-in animation */
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .story-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .story-section.reverse {
+            flex-direction: row-reverse;
+            background-color: #f8fafc;
+        }
+
+        .story-image {
+            flex: 1;
+            height: 400px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .story-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .story-image:hover img {
+            transform: scale(1.05);
+        }
+
+        .story-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .story-content h3 {
+            font-family: 'Nanum Myeongjo', serif;
+            color: var(--deep-blue);
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .story-content h3::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background-color: var(--mint-green);
+            margin-top: 15px;
+        }
+
+        .story-content p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #4a5568;
+            margin-bottom: 20px;
+            word-break: keep-all;
+        }
+
+        .signature-section {
+            text-align: center;
+            padding: 100px 0;
+            background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
+        }
+
+        .signature img {
+            width: 150px;
+            margin-top: 30px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .story-section {
+                flex-direction: column;
+                text-align: center;
+                gap: 30px;
+            }
+
+            .story-section.reverse {
+                flex-direction: column;
+            }
+
+            .story-hero h2 {
+                font-size: 2.5rem;
+            }
+
+            .story-content h3::after {
+                margin: 15px auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1 class="logo"><a href="index.html" style="text-decoration:none; color:inherit;">JINSUNG<span>NATURE
+                        FOOD</span></a></h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">홈으로</a></li>
+                    <li><a href="#">생물 수산물</a></li>
+                    <li><a href="#">프리미엄 건어물</a></li>
+                    <li><a href="story.html"
+                            style="color: var(--deep-blue); border-bottom: 2px solid var(--mint-green);">산지직송 스토리</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                <button class="icon-btn" onclick="location.href='search.html'">🔍</button>
+                <button class="icon-btn" onclick="location.href='login.html'">👤</button>
+                <button class="icon-btn" onclick="location.href='cart.html'">🛒 <span class="badge">0</span></button>
+            </div>
+        </div>
+    </header>
+
+    <div class="story-hero">
+        <div class="container">
+            <h2>바다가 허락한 시간, 24시간</h2>
+            <p>가장 정직한 신선함을 식탁 위로 전달합니다.</p>
+        </div>
+    </div>
+
+    <main class="container">
+
+        <!-- Section 1 -->
+        <section class="story-section visible">
+            <div class="story-image">
+                <img src="https://images.unsplash.com/photo-1534008897995-27a23e859048?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                    alt="완도 바다">
+            </div>
+            <div class="story-content">
+                <h3>대한민국 청정 바다, 깨끗함의 약속</h3>
+                <p>
+                    진성네이처푸드 대부분의 건어물은 대한민국 청정 지역 바다에서 자랍니다.
+                    거친 파도와 해풍을 견디며 자란 건어물만이 가질 수 있는 쫄깃한 식감과 깊은 풍미.
+                </p>
+                <p>
+                    우리는 매일 새벽, 어민들의 땀방울이 서린 갓 잡은 해산물을 직접 눈으로 확인하고 선별합니다.
+                    타협하지 않는 깐깐함, 그것이 바로 진성의 자부심입니다. 🌊
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 2 -->
+        <section class="story-section reverse">
+            <div class="story-image">
+                <img src="images/unnamed.jpg" alt="건조 과정">
+            </div>
+            <div class="story-content">
+                <h3>햇살과 바람이 빚은 맛</h3>
+                <p>
+                    "좋은 건어물은 햇살 냄새가 난다"는 말이 있습니다.
+                    기계로 빠르게 말리는 대신, 자연의 바람과 따스한 햇살 아래 천천히 건조합니다.
+                </p>
+                <p>
+
+                    시간이 걸리더라도 자연 그대로의 감칠맛을 지키기 위해 우리는 '느림'을 선택했습니다. ☀️🍃
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 3 -->
+        <section class="story-section">
+            <div class="story-image">
+                <img src="https://images.unsplash.com/photo-1615361200141-f45040f367be?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+                    alt="배송 박스">
+            </div>
+            <div class="story-content">
+                <h3>식탁까지 신선함 그대로</h3>
+                <p>
+                    아무리 좋은 재료도 식탁에 오를 때 신선하지 않다면 아무 소용이 없습니다.
+                </p>
+                <p>
+                    진성네이처푸드만의 'Smart Cold Chain' 시스템으로, <br>
+                    산지의 차가운 온도를 유지한 채 고객님의 집 앞까지 안전하게 도착합니다. <br>
+                    문을 여는 순간, 바다 내음을 선물해 드리겠습니다. 🎁
+                </p>
+            </div>
+        </section>
+
+        <section class="signature-section">
+            <h3 style="font-family: 'Nanum Myeongjo'; font-size: 2rem; color: var(--deep-blue);">"먹거리에 대한 정직함이 우리의 유일한
+                전략입니다."</h3>
+            <p style="margin-top: 20px; color: #666;">- 진성네이처푸드 대표 올림 -</p>
+            <div style="margin-top: 40px;">
+                <button class="cta-btn" onclick="location.href='index.html'">신선한 수산물 만나러 가기 →</button>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Jinsung Nature Food. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Scroll Animation
+        const observerOptions = { threshold: 0.2 };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.story-section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+
+</html>

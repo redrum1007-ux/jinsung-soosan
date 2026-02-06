@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상품 검색 - 진성네이처푸드</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .search-container {
+            max-width: 800px;
+            margin: 60px auto 40px;
+            padding: 0 20px;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 20px 60px 20px 20px;
+            font-size: 1.2rem;
+            border: 2px solid var(--deep-blue);
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            box-shadow: 0 4px 20px rgba(0, 51, 102, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--deep-blue);
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-chip {
+            padding: 10px 20px;
+            border: 2px solid var(--light-gray);
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-chip:hover,
+        .filter-chip.active {
+            border-color: var(--deep-blue);
+            background: var(--deep-blue);
+            color: white;
+        }
+
+        .search-results {
+            margin-top: 40px;
+        }
+
+        .results-header {
+            margin-bottom: 30px;
+            text-align: center;
+            color: #666;
+        }
+
+        .results-header strong {
+            color: var(--deep-blue);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 80px 20px;
+            color: #888;
+        }
+
+        .no-results h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1 class="logo"><a href="index.html" style="text-decoration:none; color:inherit;">JINSUNG<span>NATURE
+                        FOOD</span></a></h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">홈으로</a></li>
+                    <li><a href="premium.html">프리미엄 건어물</a></li>
+                    <li><a href="gifts.html">선물세트</a></li>
+                    <li><a href="story.html">산지직송 스토리</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                <button class="icon-btn" onclick="location.href='search.html'">🔍</button>
+                <button class="icon-btn" onclick="location.href='login.html'">👤</button>
+                <button class="icon-btn" onclick="location.href='cart.html'">🛒 <span class="badge"
+                        id="cartBadge">0</span></button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" class="search-input" placeholder="상품명을 입력하세요..." autofocus>
+                <span class="search-icon">🔍</span>
+            </div>
+
+            <div class="search-filter">
+                <button class="filter-chip active" data-category="all">전체</button>
+                <button class="filter-chip" data-category="김/미역/다시마">김/미역/다시마</button>
+                <button class="filter-chip" data-category="멸치">멸치</button>
+                <button class="filter-chip" data-category="건어물">건어물</button>
+            </div>
+        </div>
+
+        <div class="search-results container">
+            <div class="results-header" id="resultsHeader"></div>
+            <div class="product-grid" id="resultsGrid"></div>
+            <div class="no-results" id="noResults" style="display: none;">
+                <h3>검색 결과가 없습니다</h3>
+                <p>다른 검색어로 시도해보세요 🔍</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Jinsung Nature Food. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        let currentCategory = 'all';
+
+        // Update cart badge
+        function updateCartBadge() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartBadge').textContent = totalItems;
+        }
+
+        // Filter chips
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', function () {
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                currentCategory = this.dataset.category;
+                performSearch();
+            });
+        });
+
+        // Search input
+        document.getElementById('searchInput').addEventListener('input', performSearch);
+
+        function performSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const resultsGrid = document.getElementById('resultsGrid');
+            const resultsHeader = document.getElementById('resultsHeader');
+            const noResults = document.getElementById('noResults');
+
+            // Filter by category
+            let filteredProducts = products;
+            if (currentCategory !== 'all') {
+                filteredProducts = products.filter(p => p.category === currentCategory);
+            }
+
+            // Filter by search query
+            if (query) {
+                filteredProducts = filteredProducts.filter(p =>
+                    p.name.toLowerCase().includes(query)
+                );
+            }
+
+            // Display results
+            if (filteredProducts.length === 0) {
+                resultsGrid.innerHTML = '';
+                resultsHeader.innerHTML = '';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+            resultsHeader.innerHTML = `<strong>${filteredProducts.length}개</strong>의 상품을 찾았습니다`;
+
+            resultsGrid.innerHTML = filteredProducts.map(product => {
+                const priceFormatted = new Intl.NumberFormat('ko-KR').format(product.price);
+                const discountBadge = product.discount ? `<span>${product.discount}</span>` : '';
+
+                return `
+                    <div class="product-card">
+                        <div class="image-placeholder" style="background-image: url('${product.image}'); cursor: pointer;" onclick="location.href='detail.html?id=${product.id}'"></div>
+                        <h4 style="cursor: pointer;" onclick="location.href='detail.html?id=${product.id}'">${product.name}</h4>
+                        <p class="price">₩${priceFormatted} ${discountBadge}</p>
+                        <button class="add-cart" onclick="addToCart('${product.name}')">담기</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            performSearch();
+            updateCartBadge();
+        });
+    </script>
+</body>
+
+</html>

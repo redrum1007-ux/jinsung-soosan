@@ -1,0 +1,19 @@
+# 백업 파일은 GitHub에 올리지 않습니다
+backup_savepoint_1/
+세이브포인트2/
+
+# 시스템 파일
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 임시 파일
+*.tmp
+*.temp
+~$*
+
+# 로그 파일
+*.log
+
+# 캐시
+.cache/

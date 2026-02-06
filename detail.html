@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상품 상세 - 진성네이처푸드</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Load same fonts here so they render correctly -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Dokdo&family=East+Sea+Dokdo&family=Gaegu&family=Gamja+Flower&family=Gowun+Batang&family=Gowun+Dodum&family=Gugi&family=Gumso&family=Hi+Melody&family=Jua&family=Kirang+Haerang&family=Nanum+Gothic&family=Nanum+Myeongjo&family=Nanum+Pen+Script&family=Noto+Sans+KR&family=Poor+Story&family=Single+Day&family=Sunflower:wght@300&family=Yeon+Sung&display=swap"
+        rel="stylesheet">
+
+    <style>
+        .detail-card-container {
+            display: flex;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .detail-image {
+            flex: 1;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .detail-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .detail-info {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .detail-title {
+            font-size: 2rem;
+            color: var(--deep-blue);
+            margin-bottom: 20px;
+        }
+
+        .detail-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 30px;
+        }
+
+        .detail-price span {
+            color: #ff6b6b;
+            font-size: 1rem;
+            border: 1px solid #ff6b6b;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .qty-btn {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #cbd5e0;
+            background: white;
+            cursor: pointer;
+        }
+
+        .qty-input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid #cbd5e0;
+            height: 30px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .buy-now {
+            flex: 1;
+            background: var(--deep-blue);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        .add-cart-lg {
+            flex: 1;
+            background: white;
+            color: var(--deep-blue);
+            border: 2px solid var(--deep-blue);
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+        }
+
+        .add-cart-lg:hover {
+            background: #f0f7ff;
+        }
+
+        .detail-content-section {
+            margin-top: 60px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .detail-block {
+            margin-bottom: 30px;
+        }
+
+        .detail-block img {
+            max-width: 100%;
+            border-radius: 10px;
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .detail-block p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        /* Default text style */
+
+        @media (max-width: 768px) {
+            .detail-card-container {
+                flex-direction: column;
+            }
+        }
+
+
+        @media (max-width: 768px) {
+            .detail-card-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1 class="logo"><a href="index.html" style="text-decoration:none; color:inherit;">JINSUNG<span>NATURE
+                        FOOD</span></a></h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">홈으로</a></li>
+                    <li><a href="story.html">산지직송 스토리</a></li>
+                    <li><a href="#">프리미엄 건어물</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                <button class="icon-btn" onclick="location.href='search.html'">🔍</button>
+                <button class="icon-btn" onclick="location.href='login.html'">👤</button>
+                <button class="icon-btn" onclick="location.href='cart.html'">🛒 <span class="badge">0</span></button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="productDetailArea">
+            <p style="text-align: center; padding: 100px;">상품 정보를 불러오는 중입니다... ⏳</p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Jinsung Nature Food. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get('id');
+
+            if (!productId) {
+                alert('잘못된 접근입니다.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const product = products.find(p => p.id == productId);
+
+            if (!product) {
+                const area = document.getElementById('productDetailArea');
+                area.innerHTML = '<p style="text-align:center; padding:100px;">상품을 찾을 수 없습니다. 😢</p>';
+                return;
+            }
+
+            renderDetail(product);
+        });
+
+        function renderDetail(product) {
+            const area = document.getElementById('productDetailArea');
+            const priceFormatted = new Intl.NumberFormat('ko-KR').format(product.price);
+            const discountBadge = product.discount ? `<span>${product.discount}</span>` : '';
+
+            // --- Consolidated Branding Intro HTML ---
+
+            let detailHtml = '';
+            if (product.detail && Array.isArray(product.detail)) {
+                product.detail.forEach(block => {
+                    if (block.type === 'image') {
+                        detailHtml += `<div class="detail-block"><img src="${block.value}" alt="상세 이미지"></div>`;
+                    } else if (block.type === 'text') {
+                        const style = block.style || '';
+                        detailHtml += `<div class="detail-block"><p style="${style}">${block.value.replace(/\n/g, '<br>')}</p></div>`;
+                    }
+                });
+            } else {
+                detailHtml = '<div class="detail-block"><p>상세 설명이 없습니다.</p></div>';
+            }
+
+            area.innerHTML = `
+                <div class="detail-card-container">
+                    <div class="detail-image">
+                        <img src="${product.image}" alt="${product.name}">
+                    </div>
+                    <div class="detail-info">
+                        <h2 class="detail-title">${product.name}</h2>
+                        <div class="detail-price">₩${priceFormatted} ${discountBadge}</div>
+                        <p style="margin-bottom: 20px; color: #666;">원산지: 국산 (완도/영광 등)</p>
+                        <p style="margin-bottom: 30px; font-size: 0.9rem; color: #888;">주문 마감: 오후 2시 (당일 발송)</p>
+                        
+                        <div class="quantity-control">
+                            <button class="qty-btn">-</button>
+                            <input type="text" class="qty-input" value="1" readonly>
+                            <button class="qty-btn">+</button>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="add-cart-lg" onclick="addToCart('${product.name}')">장바구니 담기</button>
+                            <button class="buy-now">바로 구매하기</button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="detail-content-section">
+                    <h3 style="font-size: 1.5rem; margin-bottom: 30px; border-bottom: 2px solid var(--deep-blue); padding-bottom: 10px; display: inline-block;">상품 상세 정보</h3>
+                    ${detailHtml}
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 로그인 - 진성네이처푸드</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .admin-auth-container {
+            max-width: 450px;
+            margin: 100px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid var(--deep-blue);
+        }
+
+        .admin-badge {
+            background: var(--deep-blue);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .admin-auth-container h2 {
+            text-align: center;
+            color: var(--deep-blue);
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--deep-blue);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--deep-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: #004d99;
+            transform: translateY(-2px);
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: var(--deep-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .admin-info {
+            background: #f0f7ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <div class="admin-auth-container">
+            <div style="text-align: center;">
+                <span class="admin-badge">🔐 관리자 전용</span>
+            </div>
+            <h2>관리자 로그인</h2>
+
+            <div class="admin-info">
+                <strong>ℹ️ 기본 관리자 계정:</strong><br>
+                ID: admin<br>
+                비밀번호: admin1234
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label for="adminId">관리자 ID</label>
+                    <input type="text" id="adminId" name="adminId" required placeholder="관리자 ID 입력">
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">비밀번호</label>
+                    <input type="password" id="adminPassword" name="adminPassword" required placeholder="비밀번호 입력">
+                </div>
+                <button type="submit" class="submit-btn">관리자 로그인</button>
+            </form>
+
+            <div class="back-link">
+                <p><a href="index.html">← 메인 페이지로 돌아가기</a></p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize default admin account if not exists
+        function initializeAdmin() {
+            const admins = JSON.parse(localStorage.getItem('admins')) || [];
+            if (admins.length === 0) {
+                admins.push({
+                    id: 'admin',
+                    password: 'admin1234',
+                    name: '관리자',
+                    createdAt: new Date().toISOString()
+                });
+                localStorage.setItem('admins', JSON.stringify(admins));
+            }
+        }
+
+        document.getElementById('adminLoginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const adminId = document.getElementById('adminId').value;
+            const adminPassword = document.getElementById('adminPassword').value;
+
+            // Get admins from localStorage
+            const admins = JSON.parse(localStorage.getItem('admins')) || [];
+
+            // Find admin
+            const admin = admins.find(a => a.id === adminId && a.password === adminPassword);
+
+            if (admin) {
+                // Store admin session
+                const session = {
+                    id: admin.id,
+                    name: admin.name,
+                    loginTime: new Date().toISOString(),
+                    isAdmin: true
+                };
+                localStorage.setItem('adminSession', JSON.stringify(session));
+
+                alert(`관리자 로그인 성공! 환영합니다, ${admin.name}님 👑`);
+                window.location.href = 'admin.html';
+            } else {
+                const errorMsg = document.getElementById('errorMessage');
+                errorMsg.textContent = '관리자 ID 또는 비밀번호가 올바르지 않습니다.';
+                errorMsg.style.display = 'block';
+            }
+        });
+
+        // Initialize on load
+        initializeAdmin();
+    </script>
+</body>
+
+</html>

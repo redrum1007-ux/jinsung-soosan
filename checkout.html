@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주문/결제 - 진성네이처푸드</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .checkout-container {
+            max-width: 1000px;
+            margin: 60px auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+        }
+
+        .checkout-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .checkout-section h3 {
+            color: var(--deep-blue);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--deep-blue);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .payment-methods {
+            display: grid;
+            gap: 10px;
+        }
+
+        .payment-method {
+            padding: 15px;
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .payment-method:hover {
+            border-color: var(--deep-blue);
+        }
+
+        .payment-method.selected {
+            border-color: var(--deep-blue);
+            background: #f0f7ff;
+        }
+
+        .payment-method input[type="radio"] {
+            width: auto;
+        }
+
+        .order-summary {
+            position: sticky;
+            top: 100px;
+        }
+
+        .order-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .order-item-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .order-item-info {
+            flex: 1;
+        }
+
+        .order-item-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .order-item-qty {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .summary-row.total {
+            border-top: 2px solid var(--light-gray);
+            padding-top: 15px;
+            margin-top: 15px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--deep-blue);
+        }
+
+        .place-order-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--deep-blue);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .place-order-btn:hover {
+            background: #004d99;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1 class="logo"><a href="index.html" style="text-decoration:none; color:inherit;">JINSUNG<span>NATURE
+                        FOOD</span></a></h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">홈으로</a></li>
+                    <li><a href="premium.html">프리미엄 건어물</a></li>
+                    <li><a href="gifts.html">선물세트</a></li>
+                    <li><a href="story.html">산지직송 스토리</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                <button class="icon-btn" onclick="location.href='search.html'">🔍</button>
+                <button class="icon-btn" onclick="location.href='login.html'">👤</button>
+                <button class="icon-btn" onclick="location.href='cart.html'">🛒 <span class="badge"
+                        id="cartBadge">0</span></button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="checkout-container">
+            <div>
+                <div class="checkout-section">
+                    <h3>배송 정보</h3>
+                    <form id="checkoutForm">
+                        <div class="form-group">
+                            <label for="name">받는 분</label>
+                            <input type="text" id="name" required placeholder="홍길동">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">연락처</label>
+                            <input type="tel" id="phone" required placeholder="010-1234-5678">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">주소</label>
+                            <input type="text" id="address" required placeholder="서울시 강남구 테헤란로 123">
+                        </div>
+                        <div class="form-group">
+                            <label for="memo">배송 메모</label>
+                            <textarea id="memo" rows="3" placeholder="배송 시 요청사항을 입력해주세요"></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="checkout-section">
+                    <h3>결제 방법</h3>
+                    <div class="payment-methods">
+                        <label class="payment-method selected">
+                            <input type="radio" name="payment" value="card" checked>
+                            <span>💳 신용/체크카드</span>
+                        </label>
+                        <label class="payment-method">
+                            <input type="radio" name="payment" value="transfer">
+                            <span>🏦 무통장입금</span>
+                        </label>
+                        <label class="payment-method">
+                            <input type="radio" name="payment" value="kakaopay">
+                            <span>💛 카카오페이</span>
+                        </label>
+                        <label class="payment-method">
+                            <input type="radio" name="payment" value="naverpay">
+                            <span>💚 네이버페이</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="checkout-section order-summary">
+                <h3>주문 요약</h3>
+                <div id="orderItems"></div>
+                <div class="summary-row">
+                    <span>상품 금액</span>
+                    <span id="subtotal">₩0</span>
+                </div>
+                <div class="summary-row">
+                    <span>배송비</span>
+                    <span>무료</span>
+                </div>
+                <div class="summary-row total">
+                    <span>총 결제 금액</span>
+                    <span id="totalPrice">₩0</span>
+                </div>
+                <button class="place-order-btn" onclick="placeOrder()">주문하기</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Jinsung Nature Food. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Payment method selection
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', function () {
+                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+                this.classList.add('selected');
+                this.querySelector('input[type="radio"]').checked = true;
+            });
+        });
+
+        function loadOrderSummary() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const orderItems = document.getElementById('orderItems');
+
+            if (cart.length === 0) {
+                alert('장바구니가 비어있습니다.');
+                window.location.href = 'cart.html';
+                return;
+            }
+
+            orderItems.innerHTML = cart.map(item => `
+                <div class="order-item">
+                    <div class="order-item-image" style="background-image: url('${item.image}')"></div>
+                    <div class="order-item-info">
+                        <div class="order-item-name">${item.name}</div>
+                        <div class="order-item-qty">${item.quantity}개 × ₩${new Intl.NumberFormat('ko-KR').format(item.price)}</div>
+                    </div>
+                    <div style="font-weight: 600;">₩${new Intl.NumberFormat('ko-KR').format(item.price * item.quantity)}</div>
+                </div>
+            `).join('');
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('subtotal').textContent = '₩' + new Intl.NumberFormat('ko-KR').format(subtotal);
+            document.getElementById('totalPrice').textContent = '₩' + new Intl.NumberFormat('ko-KR').format(subtotal);
+
+            // Update cart badge
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartBadge').textContent = totalItems;
+        }
+
+        function placeOrder() {
+            const form = document.getElementById('checkoutForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const memo = document.getElementById('memo').value;
+            const payment = document.querySelector('input[name="payment"]:checked').value;
+
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            const order = {
+                id: Date.now(),
+                items: cart,
+                shipping: { name, phone, address, memo },
+                payment,
+                total,
+                date: new Date().toISOString(),
+                status: '주문완료'
+            };
+
+            // Save order
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            orders.push(order);
+            localStorage.setItem('orders', JSON.stringify(orders));
+
+            // Clear cart
+            localStorage.setItem('cart', JSON.stringify([]));
+
+            alert(`주문이 완료되었습니다! 🎉\n주문번호: ${order.id}\n총 금액: ₩${new Intl.NumberFormat('ko-KR').format(total)}`);
+            window.location.href = 'index.html';
+        }
+
+        // Load on page load
+        document.addEventListener('DOMContentLoaded', loadOrderSummary);
+    </script>
+</body>
+
+</html>

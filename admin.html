@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 - 진성네이처푸드</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #f0f4f8;
+        }
+
+        .admin-header {
+            background: var(--deep-blue);
+            color: white;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .admin-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: white;
+            color: var(--deep-blue);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: var(--deep-blue);
+            border-bottom-color: var(--deep-blue);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .product-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .product-table thead {
+            background: var(--deep-blue);
+            color: white;
+        }
+
+        .product-table th,
+        .product-table td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        .product-table tbody tr {
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .product-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .product-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-right: 5px;
+            transition: all 0.2s;
+        }
+
+        .edit-btn {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #2563eb;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+        }
+
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--deep-blue);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--deep-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: #004d99;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-header">
+        <div class="container">
+            <div class="admin-title">🛠️ 관리자 페이지</div>
+            <button class="logout-btn" onclick="logout()">로그아웃</button>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="admin-tabs">
+            <button class="tab-btn active" onclick="switchTab('list')">상품 목록</button>
+            <button class="tab-btn" onclick="switchTab('add')">상품 등록</button>
+        </div>
+
+        <!-- Product List Tab -->
+        <div id="listTab" class="tab-content active">
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>이미지</th>
+                        <th>상품명</th>
+                        <th>카테고리</th>
+                        <th>가격</th>
+                        <th>할인</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody">
+                    <!-- Products will be rendered here -->
+                </tbody>
+            </table>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <h3>등록된 상품이 없습니다</h3>
+                <p>상품 등록 탭에서 새 상품을 추가하세요</p>
+            </div>
+        </div>
+
+        <!-- Add/Edit Product Tab -->
+        <div id="addTab" class="tab-content">
+            <div class="form-container">
+                <h3 id="formTitle" style="margin-bottom: 30px; color: var(--deep-blue);">상품 등록</h3>
+                <form id="productForm">
+                    <input type="hidden" id="productId">
+                    <div class="form-group">
+                        <label for="productName">상품명 *</label>
+                        <input type="text" id="productName" required placeholder="예: 완도산 특대 전복">
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">카테고리 *</label>
+                        <select id="productCategory" required>
+                            <option value="">카테고리 선택</option>
+                            <option value="김/미역/다시마">김/미역/다시마</option>
+                            <option value="멸치">멸치</option>
+                            <option value="건어물">건어물</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="productPrice">가격 (원) *</label>
+                        <input type="number" id="productPrice" required placeholder="예: 50000">
+                    </div>
+                    <div class="form-group">
+                        <label for="productImage">이미지 URL *</label>
+                        <input type="text" id="productImage" required
+                            placeholder="https://images.unsplash.com/photo-...">
+                        <small style="color: #666; display: block; margin-top: 5px;">
+                            Unsplash 또는 이미지 URL을 입력하세요
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="productDiscount">할인 표시 (선택)</label>
+                        <input type="text" id="productDiscount" placeholder="예: -20% 또는 HOT">
+                    </div>
+                    <button type="submit" class="submit-btn" id="submitBtn">상품 등록하기</button>
+                    <button type="button" class="submit-btn" style="margin-top: 10px; background: #6b7280;"
+                        onclick="cancelEdit()">취소</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        // Check admin authentication
+        function checkAuth() {
+            const adminSession = JSON.parse(localStorage.getItem('adminSession'));
+            if (!adminSession || !adminSession.isAdmin) {
+                alert('관리자 권한이 필요합니다.');
+                window.location.href = 'admin-login.html';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('adminSession');
+            alert('로그아웃되었습니다.');
+            window.location.href = 'admin-login.html';
+        }
+
+        let editingProductId = null;
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            if (tab === 'list') {
+                document.querySelector('.tab-btn').classList.add('active');
+                document.getElementById('listTab').classList.add('active');
+                renderProducts();
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('addTab').classList.add('active');
+            }
+        }
+
+        function renderProducts() {
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const tbody = document.getElementById('productTableBody');
+            const emptyState = document.getElementById('emptyState');
+
+            if (products.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            tbody.innerHTML = products.map(product => `
+                <tr>
+                    <td><img src="${product.image}" class="product-img" alt="${product.name}"></td>
+                    <td>${product.name}</td>
+                    <td>${product.category || '미분류'}</td>
+                    <td>₩${new Intl.NumberFormat('ko-KR').format(product.price)}</td>
+                    <td>${product.discount || '-'}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editProduct(${product.id})">수정</button>
+                        <button class="action-btn delete-btn" onclick="deleteProduct(${product.id})">삭제</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function editProduct(id) {
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const product = products.find(p => p.id === id);
+
+            if (!product) return;
+
+            editingProductId = id;
+            document.getElementById('formTitle').textContent = '상품 수정';
+            document.getElementById('submitBtn').textContent = '수정 완료';
+            document.getElementById('productId').value = id;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productCategory').value = product.category || '';
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productImage').value = product.image;
+            document.getElementById('productDiscount').value = product.discount || '';
+
+            switchTab('add');
+        }
+
+        function deleteProduct(id) {
+            if (!confirm('정말 이 상품을 삭제하시겠습니까?')) return;
+
+            let products = JSON.parse(localStorage.getItem('products')) || [];
+            products = products.filter(p => p.id !== id);
+            localStorage.setItem('products', JSON.stringify(products));
+
+            alert('상품이 삭제되었습니다.');
+            renderProducts();
+        }
+
+        function cancelEdit() {
+            editingProductId = null;
+            document.getElementById('formTitle').textContent = '상품 등록';
+            document.getElementById('submitBtn').textContent = '상품 등록하기';
+            document.getElementById('productForm').reset();
+            document.getElementById('productId').value = '';
+        }
+
+        document.getElementById('productForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const id = document.getElementById('productId').value;
+            const name = document.getElementById('productName').value;
+            const category = document.getElementById('productCategory').value;
+            const price = Number(document.getElementById('productPrice').value);
+            const image = document.getElementById('productImage').value;
+            const discount = document.getElementById('productDiscount').value || null;
+
+            let products = JSON.parse(localStorage.getItem('products')) || [];
+
+            if (id) {
+                // Update existing product
+                const index = products.findIndex(p => p.id == id);
+                if (index !== -1) {
+                    products[index] = { ...products[index], name, category, price, image, discount };
+                }
+                alert('상품이 수정되었습니다! 🎉');
+            } else {
+                // Add new product
+                const newProduct = {
+                    id: Date.now(),
+                    name,
+                    category,
+                    price,
+                    image,
+                    discount,
+                    isHot: false
+                };
+                products.push(newProduct);
+                alert('상품이 등록되었습니다! 🎉');
+            }
+
+            localStorage.setItem('products', JSON.stringify(products));
+            cancelEdit();
+            switchTab('list');
+        });
+
+        // Initialize
+        checkAuth();
+        renderProducts();
+    </script>
+</body>
+
+</html>
