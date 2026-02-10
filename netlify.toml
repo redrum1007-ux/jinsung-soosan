@@ -1,0 +1,11 @@
+# Netlify Configuration for Frontend Deployment
+
+[build]
+  # 빌드할 필요 없음 (순수 HTML/CSS/JS)
+  publish = "."
+  
+[[redirects]]
+  # SPA 라우팅을 위한 리다이렉트 설정
+  from = "/*"
+  to = "/index.html"
+  status = 200

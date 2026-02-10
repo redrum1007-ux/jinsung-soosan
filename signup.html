@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원가입 - 진성네이처푸드</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="mobile.css">
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
     <style>
         .auth-container {
@@ -168,7 +169,7 @@
 
     <script src="script.js"></script>
     <script>
-        document.getElementById('signupForm').addEventListener('submit', function (e) {
+        document.getElementById('signupForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
             const name = document.getElementById('name').value;
@@ -177,7 +178,6 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const terms = document.getElementById('terms').checked;
-
             const errorMsg = document.getElementById('errorMessage');
 
             // Validation
@@ -199,17 +199,39 @@
                 return;
             }
 
-            // Get existing users
+            // 1. Try API Signup
+            try {
+                const res = await fetch('http://localhost:5000/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, phone, password })
+                });
+
+                if (res.ok) {
+                    alert('회원가입이 완료되었습니다! (Server) 🎉\n로그인 페이지로 이동합니다.');
+                    window.location.href = 'login.html';
+                    return;
+                } else {
+                    const data = await res.json();
+                    if (data.msg === 'User already exists') {
+                         errorMsg.textContent = '이미 가입된 이메일입니다. (Server)';
+                         errorMsg.style.display = 'block';
+                         return;
+                    }
+                }
+            } catch (err) {
+                console.log('Server signup failed, trying localStorage fallback');
+            }
+
+            // 2. LocalStorage Fallback
             const users = JSON.parse(localStorage.getItem('users')) || [];
 
-            // Check if email already exists
             if (users.find(u => u.email === email)) {
                 errorMsg.textContent = '이미 가입된 이메일입니다.';
                 errorMsg.style.display = 'block';
                 return;
             }
 
-            // Add new user
             const newUser = {
                 name,
                 email,
@@ -220,7 +242,7 @@
             users.push(newUser);
             localStorage.setItem('users', JSON.stringify(users));
 
-            alert('회원가입이 완료되었습니다! 🎉\n로그인 페이지로 이동합니다.');
+            alert('회원가입이 완료되었습니다! (Local) 🎉\n로그인 페이지로 이동합니다.');
             window.location.href = 'login.html';
         });
     </script>

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>장바구니 - 진성네이처푸드</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="mobile.css">
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
     <style>
         .cart-container {
@@ -241,47 +242,72 @@
 
     <script src="script.js"></script>
     <script>
-        function getCart() {
-            return JSON.parse(localStorage.getItem('cart')) || [];
-        }
+        // NOTE: Functions here now depend on DataManager from script.js
 
-        function saveCart(cart) {
-            localStorage.setItem('cart', JSON.stringify(cart));
+        async function initCartPage() {
+            // Check API first
+            await DataManager.checkApi();
+            renderCart();
             updateCartBadge();
         }
 
-        function updateCartBadge() {
-            const cart = getCart();
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            const badge = document.getElementById('cartBadge');
-            if (badge) {
-                badge.textContent = totalItems;
+        async function removeFromCart(productId) {
+            if (useApi && getToken()) {
+                await fetch(`http://localhost:5000/api/cart/${productId}`, {
+                    method: 'DELETE',
+                    headers: { 'x-auth-token': getToken() }
+                });
+            } else {
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                cart = cart.filter(item => item.id !== productId);
+                localStorage.setItem('cart', JSON.stringify(cart));
             }
-        }
-
-        function removeFromCart(productId) {
-            let cart = getCart();
-            cart = cart.filter(item => item.id !== productId);
-            saveCart(cart);
             renderCart();
+            updateCartBadge();
         }
 
-        function updateQuantity(productId, change) {
-            let cart = getCart();
-            const item = cart.find(item => item.id === productId);
-            if (item) {
-                item.quantity += change;
-                if (item.quantity <= 0) {
-                    removeFromCart(productId);
-                } else {
-                    saveCart(cart);
-                    renderCart();
+        async function updateQuantity(productId, change) {
+            // For API we'd need a specific endpoint to increment/decrement or set quantity
+            // For now, let's implement the local logic and simple API update if supported
+            
+            let currentQuantity = 1;
+
+            if (useApi && getToken()) {
+                // Fetch current cart item to get quantity (simplified)
+                const cart = await DataManager.getCart();
+                const item = cart.find(i => i.id === productId);
+                if (item) {
+                    const newQty = item.quantity + change;
+                    if (newQty <= 0) {
+                        await removeFromCart(productId);
+                        return;
+                    }
+                     await fetch(`http://localhost:5000/api/cart/${productId}`, {
+                        method: 'PUT',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'x-auth-token': getToken() 
+                        },
+                        body: JSON.stringify({ quantity: newQty })
+                    });
+                }
+            } else {
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                const item = cart.find(item => item.id === productId);
+                if (item) {
+                    item.quantity += change;
+                    if (item.quantity <= 0) {
+                        cart = cart.filter(i => i.id !== productId);
+                    }
+                    localStorage.setItem('cart', JSON.stringify(cart));
                 }
             }
+            renderCart();
+            updateCartBadge();
         }
 
-        function renderCart() {
-            const cart = getCart();
+        async function renderCart() {
+            const cart = await DataManager.getCart();
             const cartItems = document.getElementById('cartItems');
             const emptyCart = document.getElementById('emptyCart');
             const cartSummary = document.getElementById('cartSummary');
@@ -326,8 +352,7 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            renderCart();
-            updateCartBadge();
+            initCartPage();
         });
     </script>
 </body>

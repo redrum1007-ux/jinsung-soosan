@@ -1,4 +1,94 @@
-// Initial Product Data (Dummy Data)
+// API Configuration
+const API_URL = 'http://localhost:5000/api';
+let useApi = true; // Will auto-switch to false if connection fails
+
+// Auth Helpers
+function getToken() {
+    return localStorage.getItem('token');
+}
+
+function setToken(token) {
+    localStorage.setItem('token', token);
+}
+
+function getCurrentUser() {
+    const user = localStorage.getItem('currentUser');
+    return user ? JSON.parse(user) : null;
+}
+
+// Data Manager: Abstracts API vs LocalStorage
+const DataManager = {
+    async checkApi() {
+        try {
+            await fetch(`${API_URL}/products`);
+            useApi = true;
+            console.log('Backend connected');
+        } catch (e) {
+            useApi = false;
+            console.log('Backend not available, using LocalStorage');
+        }
+    },
+
+    async getProducts() {
+        if (useApi) {
+            try {
+                const res = await fetch(`${API_URL}/products`);
+                if (!res.ok) throw new Error('API Error');
+                return await res.json();
+            } catch (e) {
+                console.warn('Fetching products from API failed, falling back to LocalStorage', e);
+                // Fallback to local storage if API call fails mid-session
+                return JSON.parse(localStorage.getItem('products')) || [];
+            }
+        }
+        return JSON.parse(localStorage.getItem('products')) || [];
+    },
+
+    async addToCart(product) {
+        if (useApi && getToken()) {
+            try {
+                const res = await fetch(`${API_URL}/cart/add`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': getToken()
+                    },
+                    body: JSON.stringify({ productId: product.id, quantity: 1 })
+                });
+                if (res.ok) return true;
+            } catch (e) {
+                console.error('API Add to cart failed', e);
+            }
+        }
+        
+        // LocalStorage Fallback
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const existingItem = cart.find(item => item.id === product.id);
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({ ...product, quantity: 1 });
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+        return true;
+    },
+
+    async getCart() {
+        if (useApi && getToken()) {
+            try {
+                const res = await fetch(`${API_URL}/cart`, {
+                    headers: { 'x-auth-token': getToken() }
+                });
+                if (res.ok) return await res.json();
+            } catch (e) {
+                console.error('API Get cart failed', e);
+            }
+        }
+        return JSON.parse(localStorage.getItem('cart')) || [];
+    }
+};
+
+// Initial Product Data (Fallback/Seed)
 const initialProducts = [
     {
         id: 1,
@@ -38,20 +128,26 @@ const initialProducts = [
     }
 ];
 
-// Initialize Products in LocalStorage if empty
-function initializeProducts() {
+// Initialize
+async function initApp() {
+    await DataManager.checkApi();
+    
+    // Seed LocalStorage if empty (for fallback)
     if (!localStorage.getItem('products')) {
         localStorage.setItem('products', JSON.stringify(initialProducts));
     }
+
+    renderProducts();
+    updateCartBadge();
 }
 
 // Render Products
-function renderProducts() {
+async function renderProducts() {
     const productGrid = document.querySelector('.product-grid');
     if (!productGrid) return;
 
-    const products = JSON.parse(localStorage.getItem('products'));
-    productGrid.innerHTML = ''; // Clear existing content
+    const products = await DataManager.getProducts();
+    productGrid.innerHTML = ''; 
 
     products.forEach(product => {
         const card = document.createElement('div');
@@ -71,8 +167,8 @@ function renderProducts() {
 }
 
 // Cart Functionality
-function addToCart(productName) {
-    const products = JSON.parse(localStorage.getItem('products')) || [];
+async function addToCart(productName) {
+    const products = await DataManager.getProducts();
     const product = products.find(p => p.name === productName);
 
     if (!product) {
@@ -80,47 +176,26 @@ function addToCart(productName) {
         return;
     }
 
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-
-    // Check if item already in cart
-    const existingItem = cart.find(item => item.id === product.id);
-
-    if (existingItem) {
-        existingItem.quantity += 1;
-    } else {
-        cart.push({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            image: product.image,
-            quantity: 1
-        });
-    }
-
-    localStorage.setItem('cart', JSON.stringify(cart));
+    await DataManager.addToCart(product);
     updateCartBadge();
-
-    // Simple visual feedback
     alert(`${productName} 상품이 장바구니에 담겼습니다! 🛒`);
 }
 
-function updateCartBadge() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+async function updateCartBadge() {
+    const cart = await DataManager.getCart();
+    const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
     const badge = document.querySelector('.badge');
     if (badge) {
         badge.textContent = totalItems;
-        badge.classList.add('bump'); // Animation class could be added here
+        badge.classList.add('bump');
         setTimeout(() => badge.classList.remove('bump'), 300);
     }
 }
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    initializeProducts();
-    renderProducts();
+    initApp();
 
-    // Event listeners for other interactive elements can go here
     const ctaBtn = document.querySelector('.cta-btn');
     if (ctaBtn) {
         ctaBtn.addEventListener('click', () => {
@@ -128,3 +203,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+

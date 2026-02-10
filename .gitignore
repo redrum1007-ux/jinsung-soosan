@@ -1,19 +1,24 @@
-# 백업 파일은 GitHub에 올리지 않습니다
-backup_savepoint_1/
-세이브포인트2/
+# Node modules
+node_modules/
 
-# 시스템 파일
+# Environment variables
+.env
+
+# Database
+database.sqlite
+
+# OS files
 .DS_Store
 Thumbs.db
-desktop.ini
 
-# 임시 파일
-*.tmp
-*.temp
-~$*
+# IDE
+.vscode/
+.idea/
 
-# 로그 파일
+# Logs
 *.log
+npm-debug.log*
 
-# 캐시
-.cache/
+# Build
+dist/
+build/

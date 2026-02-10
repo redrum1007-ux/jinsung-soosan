@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>로그인 - 진성네이처푸드</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="mobile.css">
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
     <style>
         .auth-container {
@@ -156,21 +157,43 @@
 
     <script src="script.js"></script>
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function (e) {
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const remember = document.getElementById('remember').checked;
+            const errorMsg = document.getElementById('errorMessage');
 
-            // Get users from localStorage
+            // 1. Try API Login
+            try {
+                const res = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('currentUser', JSON.stringify({
+                        ...data.user,
+                        loginTime: new Date().toISOString(),
+                        remember: remember
+                    }));
+                    alert(`환영합니다, ${data.user.name}님! (Server) 🎉`);
+                    window.location.href = 'index.html';
+                    return;
+                }
+            } catch (err) {
+                console.log('Server login failed, trying localStorage fallback');
+            }
+
+            // 2. LocalStorage Fallback
             const users = JSON.parse(localStorage.getItem('users')) || [];
-
-            // Find user
             const user = users.find(u => u.email === email && u.password === password);
 
             if (user) {
-                // Store session
                 const session = {
                     email: user.email,
                     name: user.name,
@@ -178,11 +201,9 @@
                     remember: remember
                 };
                 localStorage.setItem('currentUser', JSON.stringify(session));
-
-                alert(`환영합니다, ${user.name}님! 🎉`);
+                alert(`환영합니다, ${user.name}님! (Local) 🎉`);
                 window.location.href = 'index.html';
             } else {
-                const errorMsg = document.getElementById('errorMessage');
                 errorMsg.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
                 errorMsg.style.display = 'block';
             }
