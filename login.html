@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="mobile.css">
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Google Sign-In SDK -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="google-auth-config.js"></script>
     <style>
         .auth-container {
             max-width: 450px;
@@ -207,6 +210,31 @@
                 errorMsg.textContent = '이메일 또는 비밀번호가 올바르지 않습니다.';
                 errorMsg.style.display = 'block';
             }
+        });
+
+        // Google 로그인 콜백 처리
+        function handleGoogleCallback(response) {
+            const user = handleGoogleLogin(response);
+            
+            if (user) {
+                alert(`환영합니다, ${user.name}님! (Google) 🎉`);
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Google Sign-In 초기화
+        window.addEventListener('load', function() {
+            // SDK 로드 대기
+            const checkGoogle = setInterval(() => {
+                if (typeof google !== 'undefined' && typeof initGoogleSignIn === 'function') {
+                    clearInterval(checkGoogle);
+                    initGoogleSignIn(handleGoogleCallback);
+                    renderGoogleButton('googleSignInButton');
+                }
+            }, 100);
+
+            // 10초 후에도 로드 안되면 타임아웃
+            setTimeout(() => clearInterval(checkGoogle), 10000);
         });
     </script>
 </body>

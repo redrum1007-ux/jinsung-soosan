@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자동 상품 임포트 - 진성네이처푸드</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .auto-import-container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .auto-import-container h2 {
+            color: var(--deep-blue);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .url-input-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .url-input-section h3 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .url-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .url-input-group input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+        }
+
+        .url-input-group button {
+            padding: 15px 30px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+        }
+
+        .url-input-group button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .supported-sites {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .site-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--deep-blue);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-preview {
+            display: none;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .result-preview h3 {
+            color: var(--deep-blue);
+            margin-bottom: 20px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .preview-image {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 3px solid var(--light-gray);
+        }
+
+        .preview-info {
+            display: grid;
+            gap: 10px;
+        }
+
+        .preview-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .preview-label {
+            font-weight: 700;
+            color: #666;
+            min-width: 80px;
+        }
+
+        .preview-value {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--deep-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #004d99;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .manual-help {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px dashed #ffc107;
+        }
+
+        .manual-help h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .step-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .step-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .step-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="logo"><a href="index.html" style="text-decoration:none; color:inherit;">JINSUNG<span>NATURE FOOD</span></a></h1>
+            <nav>
+                <ul>
+                    <li><a href="admin.html">관리자 페이지</a></li>
+                    <li><a href="product-import.html">수동 임포트</a></li>
+                    <li><a href="index.html">쇼핑몰</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="auto-import-container">
+            <h2>🚀 원클릭 자동 상품 임포트</h2>
+            <p class="subtitle">URL만 붙여넣으면 자동으로 상품 정보를 가져옵니다</p>
+
+            <div class="alert alert-success" id="successAlert">
+                ✅ 상품이 성공적으로 등록되었습니다!
+            </div>
+
+            <div class="alert alert-error" id="errorAlert">
+                ❌ <span id="errorMessage"></span>
+            </div>
+
+            <div class="alert alert-info" id="infoAlert">
+                ℹ️ <span id="infoMessage"></span>
+            </div>
+
+            <div class="url-input-section">
+                <h3>🔗 상품 URL 붙여넣기</h3>
+                <div class="url-input-group">
+                    <input 
+                        type="url" 
+                        id="productUrl" 
+                        placeholder="쿠팡, 네이버 스마트스토어 등의 상품 URL을 붙여넣으세요..."
+                        onpaste="handlePaste(event)"
+                    >
+                    <button onclick="autoImport()">자동 가져오기 🎯</button>
+                </div>
+                <div class="supported-sites">
+                    <span class="site-badge">✅ 쿠팡</span>
+                    <span class="site-badge">✅ 네이버 스마트스토어</span>
+                    <span class="site-badge">✅ 11번가</span>
+                    <span class="site-badge">✅ SSG</span>
+                </div>
+            </div>
+
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p>상품 정보를 가져오는 중입니다...</p>
+                <p style="color: #666; font-size: 0.9rem;">페이지를 분석하고 있습니다. 잠시만 기다려주세요.</p>
+            </div>
+
+            <div class="result-preview" id="resultPreview">
+                <h3>📦 가져온 상품 정보</h3>
+                <div class="preview-grid">
+                    <img id="previewImage" src="" alt="상품 이미지" class="preview-image">
+                    <div class="preview-info">
+                        <div class="preview-row">
+                            <span class="preview-label">상품명:</span>
+                            <span class="preview-value" id="previewName"></span>
+                        </div>
+                        <div class="preview-row">
+                            <span class="preview-label">가격:</span>
+                            <span class="preview-value" id="previewPrice"></span>
+                        </div>
+                        <div class="preview-row">
+                            <span class="preview-label">카테고리:</span>
+                            <select id="previewCategory" style="padding: 5px; border-radius: 5px;">
+                                <option value="김/미역/다시마">김/미역/다시마</option>
+                                <option value="멸치">멸치</option>
+                                <option value="건어물">건어물</option>
+                                <option value="선물세트">선물세트</option>
+                            </select>
+                        </div>
+                        <div class="preview-row">
+                            <span class="preview-label">설명:</span>
+                            <span class="preview-value" id="previewDescription"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="cancelImport()">취소</button>
+                    <button class="btn btn-primary" onclick="confirmImport()">등록하기</button>
+                </div>
+            </div>
+
+            <div class="manual-help">
+                <h4>⚠️ 자동 가져오기가 작동하지 않나요?</h4>
+                <p style="margin-bottom: 15px; color: #856404;">
+                    쿠팡, 네이버 등은 자동 크롤링을 차단할 수 있습니다. 다음 방법을 시도해보세요:
+                </p>
+                <ul class="step-list">
+                    <li><strong>방법 1:</strong> 브라우저 확장 프로그램 "Web Scraper" 설치 후 사용</li>
+                    <li><strong>방법 2:</strong> <a href="product-import.html" style="color: #007bff;">수동 임포트 페이지</a>에서 정보 복사/붙여넣기</li>
+                    <li><strong>방법 3:</strong> F12 개발자도구 → Network 탭에서 API 확인 후 직접 호출</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Jinsung Nature Food. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        let extractedProduct = null;
+
+        function handlePaste(e) {
+            // 붙여넣기 시 자동으로 가져오기 트리거
+            setTimeout(() => {
+                const url = e.target.value;
+                if (url && (url.includes('coupang.com') || url.includes('smartstore.naver.com'))) {
+                    showInfo('URL이 감지되었습니다. "자동 가져오기" 버튼을 클릭하세요.');
+                }
+            }, 100);
+        }
+
+        async function autoImport() {
+            const url = document.getElementById('productUrl').value.trim();
+            
+            if (!url) {
+                showError('URL을 입력해주세요.');
+                return;
+            }
+
+            hideAlerts();
+            showLoading();
+
+            try {
+                // URL 타입 감지
+                if (url.includes('coupang.com')) {
+                    await importFromCoupang(url);
+                } else if (url.includes('smartstore.naver.com')) {
+                    await importFromNaver(url);
+                } else {
+                    throw new Error('지원하지 않는 사이트입니다. 쿠팡 또는 네이버 스마트스토어 URL만 사용 가능합니다.');
+                }
+            } catch (error) {
+                hideLoading();
+                showError(error.message || '상품 정보를 가져올 수 없습니다. 수동 임포트를 이용해주세요.');
+                console.error('Import error:', error);
+            }
+        }
+
+        async function importFromCoupang(url) {
+            // 쿠팡은 직접 크롤링이 어려우므로, 프록시 서버를 통한 방법 안내
+            hideLoading();
+            showError('쿠팡은 자동 크롤링이 차단됩니다. 아래 "수동 임포트" 방법을 사용해주세요.');
+            
+            // 대안: 수동으로 정보 입력하도록 안내
+            showManualImportGuide('coupang');
+        }
+
+        async function importFromNaver(url) {
+            // 네이버도 크롤링 차단되므로 수동 방법 안내
+            hideLoading();
+            showError('네이버 스마트스토어는 자동 크롤링이 차단됩니다. 아래 "수동 임포트" 방법을 사용해주세요.');
+            
+            showManualImportGuide('naver');
+        }
+
+        function showManualImportGuide(site) {
+            const guides = {
+                'coupang': `
+1. 쿠팡 상품 페이지를 엽니다
+2. 상품명, 가격, 이미지를 복사합니다
+3. "수동 임포트" 페이지에 붙여넣기
+                `,
+                'naver': `
+1. 네이버 스마트스토어 상품 페이지를 엽니다
+2. 상품명, 가격, 이미지를 복사합니다
+3. "수동 임포트" 페이지에 붙여넣기
+                `
+            };
+
+            showInfo(guides[site] || '수동 임포트 페이지를 이용해주세요.');
+            
+            // 3초 후 수동 임포트 페이지로 리다이렉트 제안
+            setTimeout(() => {
+                if (confirm('수동 임포트 페이지로 이동하시겠습니까?')) {
+                    window.location.href = 'product-import.html?url=' + encodeURIComponent(document.getElementById('productUrl').value);
+                }
+            }, 2000);
+        }
+
+        function showPreview(product) {
+            extractedProduct = product;
+            
+            document.getElementById('previewImage').src = product.image;
+            document.getElementById('previewName').textContent = product.name;
+            document.getElementById('previewPrice').textContent = '₩' + new Intl.NumberFormat('ko-KR').format(product.price);
+            document.getElementById('previewDescription').textContent = product.description;
+            
+            document.getElementById('resultPreview').style.display = 'block';
+            hideLoading();
+        }
+
+        async function confirmImport() {
+            if (!extractedProduct) return;
+
+            const category = document.getElementById('previewCategory').value;
+            extractedProduct.category = category;
+
+            // localStorage에 저장
+            let products = JSON.parse(localStorage.getItem('products')) || [];
+            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            extractedProduct.id = newId;
+
+            products.push(extractedProduct);
+            localStorage.setItem('products', JSON.stringify(products));
+
+            // 백엔드 API에도 저장 시도
+            try {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    await fetch('http://localhost:5000/api/products', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-auth-token': token
+                        },
+                        body: JSON.stringify(extractedProduct)
+                    });
+                }
+            } catch (error) {
+                console.log('백엔드 저장 실패:', error);
+            }
+
+            showSuccess();
+            resetForm();
+        }
+
+        function cancelImport() {
+            resetForm();
+        }
+
+        function resetForm() {
+            document.getElementById('productUrl').value = '';
+            document.getElementById('resultPreview').style.display = 'none';
+            extractedProduct = null;
+        }
+
+        function showLoading() {
+            document.getElementById('loadingIndicator').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingIndicator').style.display = 'none';
+        }
+
+        function showSuccess() {
+            const alert = document.getElementById('successAlert');
+            alert.style.display = 'block';
+            setTimeout(() => {
+                alert.style.display = 'none';
+                window.location.href = 'index.html';
+            }, 2000);
+        }
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorAlert').style.display = 'block';
+        }
+
+        function showInfo(message) {
+            document.getElementById('infoMessage').textContent = message;
+            document.getElementById('infoAlert').style.display = 'block';
+        }
+
+        function hideAlerts() {
+            document.getElementById('successAlert').style.display = 'none';
+            document.getElementById('errorAlert').style.display = 'none';
+            document.getElementById('infoAlert').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

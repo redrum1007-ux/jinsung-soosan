@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>슬라이드 배너 관리 - 관리자</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #f0f4f8;
+        }
+
+        .admin-header {
+            background: var(--deep-blue);
+            color: white;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .add-slider-btn {
+            padding: 15px 30px;
+            background: var(--deep-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .sliders-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .slider-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .slider-preview {
+            flex-shrink: 0;
+            width: 300px;
+            height: 200px;
+            border-radius: 8px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .slider-info {
+            flex: 1;
+        }
+
+        .slider-info h3 {
+            color: var(--deep-blue);
+            margin-bottom: 10px;
+        }
+
+        .slider-info p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .slider-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-edit {
+            background: var(--deep-blue);
+            color: white;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            color: var(--deep-blue);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .color-picker-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-input {
+            width: 60px !important;
+            height: 40px;
+            padding: 5px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--deep-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        .cancel-btn {
+            width: 100%;
+            padding: 15px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h1 class="logo"><a href="index.html" style="text-decoration:none; color:white;">JINSUNG<span>NATURE FOOD</span></a></h1>
+                <nav>
+                    <ul style="display: flex; gap: 20px; list-style: none;">
+                        <li><a href="admin.html" style="color: white;">관리자 홈</a></li>
+                        <li><a href="admin-notices.html" style="color: white;">공지관리</a></li>
+                        <li><a href="admin-products.html" style="color: white;">상품관리</a></li>
+                        <li><a href="admin-orders.html" style="color: white;">주문관리</a></li>
+                        <li><a href="admin-sliders.html" style="color: white; font-weight: 700;">배너관리</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="admin-container">
+        <h1 style="color: var(--deep-blue); margin-bottom: 30px;">🎬 슬라이드 배너 관리</h1>
+
+        <button class="add-slider-btn" onclick="openSliderModal()">+ 새 슬라이드 추가</button>
+
+        <div class="sliders-grid" id="slidersGrid"></div>
+    </main>
+
+    <!-- Slider Modal -->
+    <div class="modal" id="sliderModal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 id="modalTitle">슬라이드 추가</h2>
+                <button onclick="closeSliderModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">✕</button>
+            </div>
+
+            <form id="sliderForm" onsubmit="saveSlider(event)">
+                <div class="form-group">
+                    <label for="slideTitle">제목 *</label>
+                    <input type="text" id="slideTitle" required placeholder="예: 프리미엄 건어물의 새로운 기준">
+                </div>
+
+                <div class="form-group">
+                    <label for="slideDescription">설명 *</label>
+                    <textarea id="slideDescription" required placeholder="예: 엄선된 최고급 수산물로 건강한 식탁을 완성하세요"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="slideButtonText">버튼 텍스트 *</label>
+                    <input type="text" id="slideButtonText" required placeholder="예: 프리미엄 상품 보기">
+                </div>
+
+                <div class="form-group">
+                    <label for="slideButtonLink">버튼 링크 *</label>
+                    <input type="text" id="slideButtonLink" required placeholder="예: premium.html">
+                </div>
+
+                <div class="form-group">
+                    <label>배경 그라데이션</label>
+                    <div class="color-picker-group">
+                        <input type="color" id="slideColorStart" class="color-input" value="#667eea">
+                        <span>→</span>
+                        <input type="color" id="slideColorEnd" class="color-input" value="#764ba2">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="slideImage">슬라이드 이미지</label>
+                    <input type="file" id="slideImageFile" accept="image/*" style="display: none;">
+                    <input type="hidden" id="slideImage">
+                    <button type="button" onclick="document.getElementById('slideImageFile').click()" 
+                            style="padding: 10px 20px; background: var(--deep-blue); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        📁 이미지 선택
+                    </button>
+                    <span id="slideImageFileName" style="margin-left: 10px; color: #666;">선택된 파일 없음</span>
+                    <div id="slideImagePreviewContainer" style="margin-top: 15px; display: none;">
+                        <img id="slideImagePreview" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">저장</button>
+                <button type="button" class="cancel-btn" onclick="closeSliderModal()">취소</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="editor-config.js"></script>
+    <script>
+        let editingSlideId = null;
+
+        // Initialize default slides if none exist
+        function initializeDefaultSlides() {
+            let slides = getSlides();
+            
+            if (slides.length === 0) {
+                slides = [
+                    {
+                        id: 1,
+                        title: '프리미엄 건어물의 새로운 기준',
+                        description: '엄선된 최고급 수산물로 건강한 식탁을 완성하세요',
+                        buttonText: '프리미엄 상품 보기',
+                        buttonLink: 'premium.html',
+                        image: 'https://images.unsplash.com/photo-1559523161-0fc0e8fc8c27?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                        colorStart: '#667eea',
+                        colorEnd: '#764ba2'
+                    },
+                    {
+                        id: 2,
+                        title: '특별한 선물, 정성 가득한 세트',
+                        description: '소중한 분께 건강과 마음을 함께 전하세요',
+                        buttonText: '선물세트 보기',
+                        buttonLink: 'gifts.html',
+                        image: 'https://images.unsplash.com/photo-1607623488235-e2e5805bad9d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                        colorStart: '#f093fb',
+                        colorEnd: '#f5576c'
+                    },
+                    {
+                        id: 3,
+                        title: '신선함을 그대로, 바다에서 식탁으로',
+                        description: '매일 아침 산지 직송으로 배송되는 신선한 해산물',
+                        buttonText: '지금 주문하기',
+                        buttonLink: 'premium.html',
+                        image: 'https://images.unsplash.com/photo-1535140728325-a4d3707eee61?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',
+                        colorStart: '#4facfe',
+                        colorEnd: '#00f2fe'
+                    }
+                ];
+                saveSlides(slides);
+            }
+        }
+
+        function getSlides() {
+            return JSON.parse(localStorage.getItem('heroSlides')) || [];
+        }
+
+        function saveSlides(slides) {
+            localStorage.setItem('heroSlides', JSON.stringify(slides));
+        }
+
+        function renderSlides() {
+            const slides = getSlides();
+            const grid = document.getElementById('slidersGrid');
+
+            if (slides.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: #999;">등록된 슬라이드가 없습니다.</p>';
+                return;
+            }
+
+            grid.innerHTML = slides.map(slide => `
+                <div class="slider-card">
+                    <div class="slider-preview" style="background: linear-gradient(135deg, ${slide.colorStart} 0%, ${slide.colorEnd} 100%);">
+                        ${slide.image ? `<img src="${slide.image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">` : ''}
+                    </div>
+                    <div class="slider-info">
+                        <h3>${slide.title}</h3>
+                        <p>${slide.description}</p>
+                        <p><strong>버튼:</strong> ${slide.buttonText} → ${slide.buttonLink}</p>
+                        <div class="slider-actions">
+                            <button class="btn btn-edit" onclick="editSlide(${slide.id})">수정</button>
+                            <button class="btn btn-delete" onclick="deleteSlide(${slide.id})">삭제</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openSliderModal(slide = null) {
+            editingSlideId = slide ? slide.id : null;
+            
+            if (slide) {
+                document.getElementById('modalTitle').textContent = '슬라이드 수정';
+                document.getElementById('slideTitle').value = slide.title;
+                document.getElementById('slideDescription').value = slide.description;
+                document.getElementById('slideButtonText').value = slide.buttonText;
+                document.getElementById('slideButtonLink').value = slide.buttonLink;
+                document.getElementById('slideColorStart').value = slide.colorStart;
+                document.getElementById('slideColorEnd').value = slide.colorEnd;
+                document.getElementById('slideImage').value = slide.image || '';
+                
+                if (slide.image) {
+                    document.getElementById('slideImageFileName').textContent = '이미지 있음';
+                    document.getElementById('slideImagePreview').src = slide.image;
+                    document.getElementById('slideImagePreviewContainer').style.display = 'block';
+                }
+            } else {
+                document.getElementById('modalTitle').textContent = '슬라이드 추가';
+                document.getElementById('sliderForm').reset();
+                document.getElementById('slideImageFileName').textContent = '선택된 파일 없음';
+                document.getElementById('slideImagePreviewContainer').style.display = 'none';
+            }
+
+            document.getElementById('sliderModal').style.display = 'flex';
+        }
+
+        function closeSliderModal() {
+            document.getElementById('sliderModal').style.display = 'none';
+            editingSlideId = null;
+        }
+
+        function saveSlider(event) {
+            event.preventDefault();
+
+            const slide = {
+                id: editingSlideId || Date.now(),
+                title: document.getElementById('slideTitle').value,
+                description: document.getElementById('slideDescription').value,
+                buttonText: document.getElementById('slideButtonText').value,
+                buttonLink: document.getElementById('slideButtonLink').value,
+                colorStart: document.getElementById('slideColorStart').value,
+                colorEnd: document.getElementById('slideColorEnd').value,
+                image: document.getElementById('slideImage').value
+            };
+
+            let slides = getSlides();
+
+            if (editingSlideId) {
+                const index = slides.findIndex(s => s.id === editingSlideId);
+                if (index !== -1) {
+                    slides[index] = slide;
+                }
+                alert('슬라이드가 수정되었습니다! 🎉');
+            } else {
+                slides.push(slide);
+                alert('슬라이드가 추가되었습니다! 🎉');
+            }
+
+            saveSlides(slides);
+            renderSlides();
+            closeSliderModal();
+        }
+
+        function editSlide(id) {
+            const slides = getSlides();
+            const slide = slides.find(s => s.id === id);
+            if (slide) {
+                openSliderModal(slide);
+            }
+        }
+
+        function deleteSlide(id) {
+            if (!confirm('이 슬라이드를 삭제하시겠습니까?')) return;
+
+            let slides = getSlides();
+            slides = slides.filter(s => s.id !== id);
+            saveSlides(slides);
+            renderSlides();
+            alert('슬라이드가 삭제되었습니다.');
+        }
+
+        // Image upload handler
+        document.getElementById('slideImageFile').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert('이미지 크기는 2MB 이하여야 합니다.');
+                e.target.value = '';
+                return;
+            }
+
+            if (!file.type.startsWith('image/')) {
+                alert('이미지 파일만 업로드 가능합니다.');
+                e.target.value = '';
+                return;
+            }
+
+            try {
+                const base64 = await convertToBase64(file);
+                document.getElementById('slideImage').value = base64;
+                document.getElementById('slideImageFileName').textContent = file.name;
+                document.getElementById('slideImagePreview').src = base64;
+                document.getElementById('slideImagePreviewContainer').style.display = 'block';
+            } catch (error) {
+                console.error('이미지 업로드 오류:', error);
+                alert('이미지 업로드 중 오류가 발생했습니다.');
+            }
+        });
+
+        // Modal close on outside click
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('sliderModal');
+            if (e.target === modal) {
+                closeSliderModal();
+            }
+        });
+
+        // Initialize
+        initializeDefaultSlides();
+        renderSlides();
+    </script>
+</body>
+</html>

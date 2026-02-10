@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>이미지 업로드 및 슬라이드 등록</title>
+    <style>
+        body {
+            font-family: 'Work Sans', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f0f4f8;
+        }
+        .upload-area {
+            border: 3px dashed #1e40af;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: white;
+            margin-bottom: 30px;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .upload-btn {
+            padding: 15px 30px;
+            background: #1e40af;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        .preview {
+            margin-top: 20px;
+            display: none;
+        }
+        .preview img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+        .register-btn {
+            padding: 15px 40px;
+            background: #059669;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+        .success {
+            background: #10b981;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="color: #1e40af;">🎁 선물세트 슬라이드 이미지 등록</h1>
+    
+    <div class="upload-area">
+        <h2>선물세트 이미지를 업로드하세요</h2>
+        <input type="file" id="imageInput" accept="image/*">
+        <button class="upload-btn" onclick="document.getElementById('imageInput').click()">
+            📁 이미지 선택하기
+        </button>
+        <div class="preview" id="preview">
+            <h3>미리보기:</h3>
+            <img id="previewImage" alt="미리보기">
+        </div>
+    </div>
+
+    <button class="register-btn" id="registerBtn" style="display: none;" onclick="registerSlider()">
+        ✅ 슬라이드에 등록하기
+    </button>
+
+    <div class="success" id="successMessage">
+        <h2>✅ 슬라이드가 성공적으로 등록되었습니다!</h2>
+        <p>
+            <a href="index.html" style="color: white; text-decoration: underline;">메인 페이지에서 확인하기</a>
+            |
+            <a href="admin-sliders.html" style="color: white; text-decoration: underline;">관리 페이지에서 수정하기</a>
+        </p>
+    </div>
+
+    <script>
+        let imageBase64 = '';
+
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // 파일 크기 체크 (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('이미지 크기는 5MB 이하여야 합니다.');
+                return;
+            }
+
+            // 이미지 타입 체크
+            if (!file.type.startsWith('image/')) {
+                alert('이미지 파일만 업로드 가능합니다.');
+                return;
+            }
+
+            // Base64 변환
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                imageBase64 = event.target.result;
+                
+                // 미리보기 표시
+                document.getElementById('previewImage').src = imageBase64;
+                document.getElementById('preview').style.display = 'block';
+                document.getElementById('registerBtn').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function registerSlider() {
+            if (!imageBase64) {
+                alert('이미지를 먼저 선택해주세요.');
+                return;
+            }
+
+            // 슬라이드 데이터 생성
+            const newSlides = [
+                {
+                    id: Date.now(),
+                    title: '바다의 신선함을 그대로',
+                    description: '매일 아침 산지에서 직송되는 최고급 해산물',
+                    buttonText: '신선한 해산물 보기',
+                    buttonLink: 'premium.html',
+                    colorStart: '#1e3a8a',
+                    colorEnd: '#3b82f6',
+                    image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'
+                },
+                {
+                    id: Date.now() + 1,
+                    title: '건강한 선물, 프리미엄 세트',
+                    description: '정성과 건강을 함께 전하는 특별한 선물',
+                    buttonText: '선물세트 보러가기',
+                    buttonLink: 'gifts.html',
+                    colorStart: '#be123c',
+                    colorEnd: '#f43f5e',
+                    image: imageBase64  // 업로드한 이미지 사용
+                }
+            ];
+
+            // 기존 슬라이드 가져오기
+            let existingSlides = JSON.parse(localStorage.getItem('heroSlides')) || [];
+            
+            // 새 슬라이드로 교체
+            localStorage.setItem('heroSlides', JSON.stringify(newSlides));
+            
+            // 성공 메시지 표시
+            document.getElementById('successMessage').style.display = 'block';
+            document.querySelector('.upload-area').style.display = 'none';
+            document.getElementById('registerBtn').style.display = 'none';
+
+            console.log('슬라이드 등록 완료:', newSlides);
+        }
+    </script>
+</body>
+</html>

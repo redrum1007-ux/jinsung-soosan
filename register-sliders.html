@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>슬라이드 배너 등록</title>
+</head>
+<body>
+    <h1>슬라이드 배너를 등록하는 중...</h1>
+    <script>
+        // 슬라이드 데이터 생성
+        const newSlides = [
+            {
+                id: Date.now(),
+                title: '바다의 신선함을 그대로',
+                description: '매일 아침 산지에서 직송되는 최고급 해산물',
+                buttonText: '신선한 해산물 보기',
+                buttonLink: 'premium.html',
+                colorStart: '#1e3a8a',
+                colorEnd: '#3b82f6',
+                image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'
+            },
+            {
+                id: Date.now() + 1,
+                title: '건강한 선물, 프리미엄 세트',
+                description: '정성과 건강을 함께 전하는 특별한 선물',
+                buttonText: '선물세트 보러가기',
+                buttonLink: 'gifts.html',
+                colorStart: '#be123c',
+                colorEnd: '#f43f5e',
+                image: 'https://lh3.googleusercontent.com/gg-dl/AOI_d__zYZ6Wbz4-PaI5vliL__1Q5JIJAq9nCCt2qwwTnpaKwOPcoGQBXRHUrW-41c_yNc0tpkUZRZe5mTOoEDL4gfVga3_8F4SgQ8QpmROUS9zrc2sqGIx3agLx407A1MNCgk_efB9pBMGSLER9id6a_7Rf0fd4m3GCki6T1cUN_3yM0lyW=s1024-rj'
+            }
+        ];
+
+        // 기존 슬라이드 가져오기
+        let existingSlides = JSON.parse(localStorage.getItem('heroSlides')) || [];
+        
+        // 새 슬라이드 추가
+        existingSlides = existingSlides.concat(newSlides);
+        
+        // localStorage에 저장
+        localStorage.setItem('heroSlides', JSON.stringify(existingSlides));
+        
+        document.body.innerHTML = `
+            <h1 style="color: green;">✅ 슬라이드 배너 2개가 성공적으로 등록되었습니다!</h1>
+            <h2>등록된 슬라이드:</h2>
+            <div style="margin: 20px;">
+                <h3>1. 바다의 신선함을 그대로</h3>
+                <p>- 배경: 오션 블루 그라데이션 (#1e3a8a → #3b82f6)</p>
+                <p>- 이미지: 프리미엄 해산물</p>
+                <p>- 버튼: "신선한 해산물 보기" → premium.html</p>
+            </div>
+            <div style="margin: 20px;">
+                <h3>2. 건강한 선물, 프리미엄 세트</h3>
+                <p>- 배경: 엘레강트 레드 그라데이션 (#be123c → #f43f5e)</p>
+                <p>- 이미지: 선물세트</p>
+                <p>- 버튼: "선물세트 보러가기" → gifts.html</p>
+            </div>
+            <p style="margin-top: 40px;">
+                <a href="admin-sliders.html" style="padding: 15px 30px; background: #1e40af; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                    슬라이더 관리 페이지로 이동
+                </a>
+                &nbsp;&nbsp;
+                <a href="index.html" style="padding: 15px 30px; background: #059669; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                    메인 페이지에서 확인
+                </a>
+            </p>
+        `;
+    </script>
+</body>
+</html>

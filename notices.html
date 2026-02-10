@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항 - 진성네이처푸드</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="mobile.css">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        .notices-container {
+            max-width: 1000px;
+            margin: 60px auto;
+            padding: 20px;
+        }
+
+        .notices-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .notices-header h2 {
+            color: var(--deep-blue);
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .notices-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .notice-categories {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--light-gray);
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .category-btn:hover {
+            border-color: var(--deep-blue);
+            color: var(--deep-blue);
+        }
+
+        .category-btn.active {
+            background: var(--deep-blue);
+            color: white;
+            border-color: var(--deep-blue);
+        }
+
+        .notice-list {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .notice-item {
+            border-bottom: 1px solid var(--light-gray);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .notice-item:last-child {
+            border-bottom: none;
+        }
+
+        .notice-item:hover {
+            background: #f8f9fa;
+        }
+
+        .notice-header-row {
+            display: flex;
+            align-items: center;
+            padding: 20px 25px;
+            gap: 20px;
+        }
+
+        .notice-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .notice-badge.important {
+            background: #ff4444;
+            color: white;
+        }
+
+        .notice-badge.event {
+            background: #ff9800;
+            color: white;
+        }
+
+        .notice-badge.normal {
+            background: var(--mint-green);
+            color: var(--deep-blue);
+        }
+
+        .notice-title {
+            flex: 1;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .notice-date {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .notice-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .notice-content.open {
+            max-height: 1000px;
+        }
+
+        .notice-content-inner {
+            padding: 25px;
+            line-height: 1.8;
+            color: var(--text-color);
+        }
+
+        .notice-image {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .notice-header-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .notice-date {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="logo"><a href="index.html" style="text-decoration:none; color:inherit;">JINSUNG<span>NATURE FOOD</span></a></h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="premium.html">프리미엄 건어물</a></li>
+                    <li><a href="gifts.html">선물세트</a></li>
+                    <li><a href="story.html">산지직송 스토리</a></li>
+                    <li><a href="notices.html" class="active">공지사항</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                <button class="icon-btn" onclick="location.href='search.html'">🔍</button>
+                <button class="icon-btn" onclick="location.href='login.html'">👤</button>
+                <button class="icon-btn" onclick="location.href='cart.html'">🛒 <span class="badge" id="cartBadge">0</span></button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="notices-container">
+            <div class="notices-header">
+                <h2>📢 공지사항</h2>
+                <p>진성네이처푸드의 새로운 소식과 이벤트를 확인하세요</p>
+            </div>
+
+            <div class="notice-categories">
+                <button class="category-btn active" onclick="filterNotices('all')">전체</button>
+                <button class="category-btn" onclick="filterNotices('important')">중요</button>
+                <button class="category-btn" onclick="filterNotices('event')">이벤트</button>
+                <button class="category-btn" onclick="filterNotices('normal')">일반</button>
+            </div>
+
+            <div class="notice-list" id="noticeList"></div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Jinsung Nature Food. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        let currentFilter = 'all';
+
+        function loadNotices() {
+            const notices = JSON.parse(localStorage.getItem('notices')) || getDefaultNotices();
+            displayNotices(notices);
+            updateCartBadge();
+        }
+
+        function getDefaultNotices() {
+            const defaultNotices = [
+                {
+                    id: 1,
+                    category: 'important',
+                    title: '설 연휴 배송 안내',
+                    content: '2026년 설 연휴 기간(2/9~2/12) 동안 주문하신 상품은 연휴 이후 순차 배송됩니다.\n고객님들의 양해 부탁드립니다.',
+                    date: '2026-02-05',
+                    author: '관리자'
+                },
+                {
+                    id: 2,
+                    category: 'event',
+                    title: '신규 회원 가입 이벤트',
+                    content: '신규 가입 고객님께 5,000원 할인 쿠폰을 드립니다!\n\n• 기간: 2026년 2월 전체\n• 대상: 신규 가입 회원\n• 혜택: 3만원 이상 구매 시 5,000원 할인\n\n지금 바로 회원가입하고 혜택을 받아보세요!',
+                    date: '2026-02-01',
+                    author: '마케팅팀'
+                },
+                {
+                    id: 3,
+                    category: 'normal',
+                    title: '신상품 출시 안내 - 프리미엄 완도 돌김',
+                    content: '청정 완도 바다에서 자란 프리미엄 돌김이 새롭게 출시되었습니다.\n\n고급스러운 포장으로 선물용으로도 최적입니다.\n많은 관심 부탁드립니다!',
+                    date: '2026-01-28',
+                    author: '상품팀'
+                }
+            ];
+            localStorage.setItem('notices', JSON.stringify(defaultNotices));
+            return defaultNotices;
+        }
+
+        function displayNotices(notices) {
+            const noticeList = document.getElementById('noticeList');
+            
+            let filtered = notices;
+            if (currentFilter !== 'all') {
+                filtered = notices.filter(n => n.category === currentFilter);
+            }
+
+            // 최신순 정렬
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (filtered.length === 0) {
+                noticeList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h3>등록된 공지사항이 없습니다</h3>
+                    </div>
+                `;
+                return;
+            }
+
+            noticeList.innerHTML = filtered.map(notice => `
+                <div class="notice-item" onclick="toggleNotice(${notice.id})">
+                    <div class="notice-header-row">
+                        <span class="notice-badge ${notice.category}">
+                            ${getCategoryName(notice.category)}
+                        </span>
+                        <div class="notice-title">${notice.title}</div>
+                        <div class="notice-date">${formatDate(notice.date)}</div>
+                    </div>
+                    <div class="notice-content" id="notice-${notice.id}">
+                        <div class="notice-content-inner">
+                            ${formatContent(notice.content)}
+                            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #999; font-size: 0.9rem;">
+                                작성자: ${notice.author} | 작성일: ${formatDate(notice.date)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleNotice(id) {
+            const content = document.getElementById(`notice-${id}`);
+            const isOpen = content.classList.contains('open');
+            
+            // 모든 공지 닫기
+            document.querySelectorAll('.notice-content').forEach(c => c.classList.remove('open'));
+            
+            // 클릭한 공지만 토글
+            if (!isOpen) {
+                content.classList.add('open');
+            }
+        }
+
+        function filterNotices(category) {
+            currentFilter = category;
+            
+            // 버튼 활성화 상태 변경
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            const notices = JSON.parse(localStorage.getItem('notices')) || [];
+            displayNotices(notices);
+        }
+
+        function getCategoryName(category) {
+            const names = {
+                'important': '중요',
+                'event': '이벤트',
+                'normal': '일반'
+            };
+            return names[category] || '일반';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}.${month}.${day}`;
+        }
+
+        function formatContent(content) {
+            // 줄바꿈을 <br>로 변환
+            return content.replace(/\n/g, '<br>');
+        }
+
+        function updateCartBadge() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartBadge').textContent = totalItems;
+        }
+
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', loadNotices);
+    </script>
+</body>
+</html>

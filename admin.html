@@ -7,6 +7,8 @@
     <title>관리자 페이지 - 진성네이처푸드</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Quill.js CSS -->
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
     <style>
         body {
             background: #f0f4f8;
@@ -205,10 +207,29 @@
         <div class="admin-tabs">
             <button class="tab-btn active" onclick="switchTab('list')">상품 목록</button>
             <button class="tab-btn" onclick="switchTab('add')">상품 등록</button>
+            <button class="tab-btn" onclick="location.href='admin-products.html'">전체 상품 관리</button>
         </div>
 
         <!-- Product List Tab -->
         <div id="listTab" class="tab-content active">
+            <div class="stats-card">
+                <h3>공지사항 관리</h3>
+                <div class="stats-number" id="noticesCount">0</div>
+                <p>등록된 공지사항</p>
+                <a href="admin-notices.html" class="card-link">공지 관리하기 →</a>
+            </div>
+            <div class="stats-card">
+                <h3>주문 관리</h3>
+                <div class="stats-number" id="ordersCount">0</div>
+                <p>전체 주문 건수</p>
+                <a href="admin-orders.html" class="card-link">주문 관리하기 →</a>
+            </div>
+            <div class="stats-card">
+                <h3>슬라이드 배너 관리</h3>
+                <div class="stats-number" id="slidesCount">0</div>
+                <p>메인 페이지 배너</p>
+                <a href="admin-sliders.html" class="card-link">배너 관리하기 →</a>
+            </div>
             <table class="product-table">
                 <thead>
                     <tr>
@@ -243,22 +264,40 @@
                     <div class="form-group">
                         <label for="productCategory">카테고리 *</label>
                         <select id="productCategory" required>
-                            <option value="">카테고리 선택</option>
-                            <option value="김/미역/다시마">김/미역/다시마</option>
-                            <option value="멸치">멸치</option>
-                            <option value="건어물">건어물</option>
+                            <option value="premium">프리미엄 건어물</option>
+                            <option value="gifts">선물세트</option>
+                            <option value="special">특가 상품</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="productDescription">상품 설명 *</label>
+                        <!-- Quill 에디터 컨테이너 -->
+                        <div id="productDescriptionEditor" style="min-height: 300px; background: white;"></div>
+                        <input type="hidden" id="productDescription">
+                        <small style="color: #666; margin-top: 10px; display: block;">
+                            💡 팁: 이미지는 드래그&드롭 또는 툴바의 이미지 버튼으로 추가할 수 있습니다.
+                        </small>
                     </div>
                     <div class="form-group">
                         <label for="productPrice">가격 (원) *</label>
                         <input type="number" id="productPrice" required placeholder="예: 50000">
                     </div>
                     <div class="form-group">
-                        <label for="productImage">이미지 URL *</label>
-                        <input type="text" id="productImage" required
-                            placeholder="https://images.unsplash.com/photo-...">
+                        <label for="productImage">상품 이미지 *</label>
+                        <input type="file" id="productImageFile" accept="image/*" style="display: none;">
+                        <input type="hidden" id="productImage" required>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button type="button" onclick="document.getElementById('productImageFile').click()" 
+                                    style="padding: 10px 20px; background: var(--deep-blue); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                📁 이미지 선택
+                            </button>
+                            <span id="imageFileName" style="color: #666; font-size: 0.9rem;">선택된 파일 없음</span>
+                        </div>
+                        <div id="imagePreviewContainer" style="margin-top: 15px; display: none;">
+                            <img id="imagePreview" style="max-width: 300px; max-height: 200px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                        </div>
                         <small style="color: #666; display: block; margin-top: 5px;">
-                            Unsplash 또는 이미지 URL을 입력하세요
+                            💡 권장: JPG, PNG 형식, 2MB 이하
                         </small>
                     </div>
                     <div class="form-group">
@@ -275,7 +314,7 @@
 
     <script src="script.js"></script>
     <script>
-        // Check admin authentication
+        // 초기화 및 세션 체크
         function checkAuth() {
             const adminSession = JSON.parse(localStorage.getItem('adminSession'));
             if (!adminSession || !adminSession.isAdmin) {
@@ -288,6 +327,33 @@
             localStorage.removeItem('adminSession');
             alert('로그아웃되었습니다.');
             window.location.href = 'admin-login.html';
+        }
+        
+        // 주문 통계 로드
+        function loadOrderStats() {
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const ordersCountEl = document.getElementById('ordersCount');
+            if (ordersCountEl) {
+                ordersCountEl.textContent = orders.length;
+            }
+        }
+        
+        // 공지사항 통계 로드 (선택사항)
+        function loadNoticesStats() {
+            const notices = JSON.parse(localStorage.getItem('notices')) || [];
+            const noticesCountEl = document.getElementById('noticesCount');
+            if (noticesCountEl) {
+                noticesCountEl.textContent = notices.length;
+            }
+        }
+        
+        // 슬라이드 통계 로드
+        function loadSlidesStats() {
+            const slides = JSON.parse(localStorage.getItem('heroSlides')) || [];
+            const slidesCountEl = document.getElementById('slidesCount');
+            if (slidesCountEl) {
+                slidesCountEl.textContent = slides.length;
+            }
         }
 
         let editingProductId = null;
@@ -366,32 +432,64 @@
         function cancelEdit() {
             editingProductId = null;
             document.getElementById('formTitle').textContent = '상품 등록';
+            document.getElementById('productName').value = '';
+            document.getElementById('productCategory').value = 'premium';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productImage').value = '';
+            document.getElementById('productImageFile').value = '';
+            document.getElementById('productDiscount').value = '';
             document.getElementById('submitBtn').textContent = '상품 등록하기';
             document.getElementById('productForm').reset();
             document.getElementById('productId').value = '';
+            
+            // 이미지 파일 표시 초기화
+            document.getElementById('imageFileName').textContent = '선택된 파일 없음';
+            document.getElementById('imagePreviewContainer').style.display = 'none';
+            
+            if (productEditor) {
+                productEditor.root.innerHTML = ''; // Clear editor content
+            }
         }
 
-        document.getElementById('productForm').addEventListener('submit', function (e) {
-            e.preventDefault();
+        document.getElementById('productForm').addEventListener('submit', saveProduct);
 
-            const id = document.getElementById('productId').value;
+        function saveProduct(event) {
+            event.preventDefault();
+
+            const products = JSON.parse(localStorage.getItem('products')) || [];
             const name = document.getElementById('productName').value;
             const category = document.getElementById('productCategory').value;
-            const price = Number(document.getElementById('productPrice').value);
+            const price = parseInt(document.getElementById('productPrice').value);
             const image = document.getElementById('productImage').value;
-            const discount = document.getElementById('productDiscount').value || null;
+            const discount = document.getElementById('productDiscount').value || null; // Keep as string or null for display
 
-            let products = JSON.parse(localStorage.getItem('products')) || [];
+            // 에디터 내용 가져오기 (HTML)
+            const description = window.quillEditors && window.quillEditors['productDescriptionEditor'] 
+                ? getEditorHTML('productDescriptionEditor') 
+                : '';
+            
+            if (!description || (window.quillEditors && isEditorEmpty('productDescriptionEditor'))) {
+                alert('상품 설명을 입력해주세요.');
+                return;
+            }
 
-            if (id) {
-                // Update existing product
-                const index = products.findIndex(p => p.id == id);
+            if (editingProductId) {
+                // 수정
+                const index = products.findIndex(p => p.id === editingProductId);
                 if (index !== -1) {
-                    products[index] = { ...products[index], name, category, price, image, discount };
+                    products[index] = { 
+                        ...products[index], 
+                        name, 
+                        category, 
+                        price, 
+                        image, 
+                        discount,
+                        description  // 에디터 HTML 저장
+                    };
                 }
                 alert('상품이 수정되었습니다! 🎉');
             } else {
-                // Add new product
+                // 새 상품 추가
                 const newProduct = {
                     id: Date.now(),
                     name,
@@ -399,6 +497,7 @@
                     price,
                     image,
                     discount,
+                    description,  // 에디터 HTML 저장
                     isHot: false
                 };
                 products.push(newProduct);
@@ -407,12 +506,74 @@
 
             localStorage.setItem('products', JSON.stringify(products));
             cancelEdit();
+            renderProducts(); // Ensure list is updated before switching tab
             switchTab('list');
-        });
+        }
 
         // Initialize
         checkAuth();
         renderProducts();
+        loadOrderStats();
+        loadNoticesStats();
+        loadSlidesStats();
+        
+        // 이미지 파일 업로드 핸들러
+        document.getElementById('productImageFile').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            
+            if (!file) return;
+            
+            // 파일 크기 체크 (2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('이미지 크기는 2MB 이하여야 합니다.');
+                e.target.value = '';
+                return;
+            }
+            
+            // 이미지 타입 체크
+            if (!file.type.startsWith('image/')) {
+                alert('이미지 파일만 업로드 가능합니다.');
+                e.target.value = '';
+                return;
+            }
+            
+            try {
+                // Base64로 변환 (editor-config.js의 convertToBase64 함수 사용)
+                const base64 = await convertToBase64(file);
+                
+                // hidden input에 Base64 저장
+                document.getElementById('productImage').value = base64;
+                
+                // 파일명 표시
+                document.getElementById('imageFileName').textContent = file.name;
+                
+                // 미리보기 표시
+                document.getElementById('imagePreview').src = base64;
+                document.getElementById('imagePreviewContainer').style.display = 'block';
+                
+            } catch (error) {
+                console.error('이미지 업로드 오류:', error);
+                alert('이미지 업로드 중 오류가 발생했습니다.');
+            }
+        });
+    </script>
+    
+    <!-- Quill.js Script -->
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    <script src="editor-config.js"></script>
+    <script>
+        // Quill 에디터 초기화
+        let productEditor;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // 상품 설명 에디터 생성
+            productEditor = createQuillEditor('productDescriptionEditor');
+            
+            // 이모티콘 버튼 추가
+            setTimeout(() => {
+                addEmojiButton('productDescriptionEditor', '#productDescriptionEditor + .ql-toolbar');
+            }, 100);
+        });
     </script>
 </body>
 

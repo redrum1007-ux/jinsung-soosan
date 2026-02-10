@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상품 임포트 도구 - 진성네이처푸드</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .import-container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .import-container h2 {
+            color: var(--deep-blue);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid var(--light-gray);
+            border-radius: 10px;
+        }
+
+        .form-section h3 {
+            color: var(--deep-blue);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--deep-blue);
+        }
+
+        .image-preview {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .image-preview img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid var(--light-gray);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--deep-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #004d99;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--mint-green);
+            color: var(--deep-blue);
+        }
+
+        .btn-secondary:hover {
+            background: var(--dark-mint);
+            transform: translateY(-2px);
+        }
+
+        .help-text {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="logo"><a href="index.html" style="text-decoration:none; color:inherit;">JINSUNG<span>NATURE FOOD</span></a></h1>
+            <nav>
+                <ul>
+                    <li><a href="admin.html">관리자 페이지</a></li>
+                    <li><a href="index.html">쇼핑몰로 돌아가기</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="import-container">
+            <h2>📦 네이버 스마트스토어 상품 임포트</h2>
+            
+            <div class="success-message" id="successMessage">
+                ✅ 상품이 성공적으로 등록되었습니다!
+            </div>
+
+            <div class="form-section">
+                <h3>🔗 1단계: 네이버 상품 URL</h3>
+                <div class="form-group">
+                    <label for="naverUrl">네이버 스마트스토어 상품 URL</label>
+                    <input type="url" id="naverUrl" placeholder="https://smartstore.naver.com/jinsungnaturefood/products/...">
+                    <div class="help-text">네이버 스마트스토어 상품 URL을 입력하고 아래 정보를 수동으로 복사해주세요</div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>📝 2단계: 상품 기본 정보</h3>
+                <div class="form-group">
+                    <label for="productName">상품명 *</label>
+                    <input type="text" id="productName" required placeholder="예: 프리미엄 완도 돌김 선물세트">
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">가격 (원) *</label>
+                    <input type="number" id="productPrice" required placeholder="예: 35000">
+                </div>
+                <div class="form-group">
+                    <label for="productCategory">카테고리 *</label>
+                    <select id="productCategory" class="form-control">
+                        <option value="김/미역/다시마">김/미역/다시마</option>
+                        <option value="멸치">멸치</option>
+                        <option value="건어물">건어물</option>
+                        <option value="선물세트">선물세트</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>🖼️ 3단계: 이미지 URL</h3>
+                <div class="form-group">
+                    <label for="mainImage">대표 이미지 URL *</label>
+                    <input type="url" id="mainImage" required placeholder="https://...">
+                    <div class="help-text">네이버 상품의 대표 이미지 우클릭 → 이미지 주소 복사</div>
+                </div>
+                <div class="form-group">
+                    <label for="detailImages">상세 이미지 URL (여러 개 가능, 줄바꿈으로 구분)</label>
+                    <textarea id="detailImages" placeholder="https://image1.jpg
+https://image2.jpg
+https://image3.jpg"></textarea>
+                </div>
+                <div id="imagePreview" class="image-preview"></div>
+            </div>
+
+            <div class="form-section">
+                <h3>📄 4단계: 상품 설명</h3>
+                <div class="form-group">
+                    <label for="productDescription">상품 설명</label>
+                    <textarea id="productDescription" placeholder="상품의 특징, 원산지, 보관방법 등을 입력하세요"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="productBadge">뱃지 (선택사항)</label>
+                    <input type="text" id="productBadge" placeholder="예: NEW, 베스트, 히트상품">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="previewProduct()">미리보기</button>
+                <button class="btn btn-primary" onclick="importProduct()">상품 등록하기</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Jinsung Nature Food. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // URL 파라미터에서 자동으로 URL 채우기
+        const urlParams = new URLSearchParams(window.location.search);
+        const naverUrl = urlParams.get('url');
+        if (naverUrl) {
+            document.getElementById('naverUrl').value = naverUrl;
+        }
+
+        // 북마클릿에서 스크랩된 데이터 확인
+        const scraped = urlParams.get('scraped');
+        if (scraped === 'true') {
+            const scrapedData = localStorage.getItem('scrapedProduct');
+            if (scrapedData) {
+                const product = JSON.parse(scrapedData);
+                document.getElementById('productName').value = product.name || '';
+                document.getElementById('productPrice').value = product.price || '';
+                document.getElementById('mainImage').value = product.image || '';
+                document.getElementById('productDescription').value = product.description || product.name || '';
+                document.getElementById('productBadge').value = product.badge || 'NEW';
+                
+                // 임시 데이터 삭제
+                localStorage.removeItem('scrapedProduct');
+                
+                alert('✅ 상품 정보가 자동으로 입력되었습니다!\n확인 후 "상품 등록" 버튼을 클릭하세요.');
+            }
+        }
+
+        // 이미지 미리보기
+        document.getElementById('mainImage').addEventListener('input', updateImagePreview);
+        document.getElementById('detailImages').addEventListener('input', updateImagePreview);
+
+        function updateImagePreview() {
+            const mainImage = document.getElementById('mainImage').value.trim();
+            const detailImages = document.getElementById('detailImages').value.trim().split('\n').filter(url => url);
+            const preview = document.getElementById('imagePreview');
+
+            const allImages = [mainImage, ...detailImages].filter(url => url);
+            
+            preview.innerHTML = allImages.map(url => 
+                `<img src="${url}" alt="상품 이미지" onerror="this.src='images/placeholder.jpg'">`
+            ).join('');
+        }
+
+        function previewProduct() {
+            const product = getProductData();
+            if (!product) return;
+
+            alert(`상품 미리보기:\n\n상품명: ${product.name}\n가격: ₩${new Intl.NumberFormat('ko-KR').format(product.price)}\n카테고리: ${product.category}\n\n이미지 미리보기는 위의 프리뷰를 확인하세요.`);
+        }
+
+        async function importProduct() {
+            const product = getProductData();
+            if (!product) return;
+
+            // 1. localStorage에 저장
+            let products = JSON.parse(localStorage.getItem('products')) || [];
+            
+            // 새 ID 생성
+            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            product.id = newId;
+
+            products.push(product);
+            localStorage.setItem('products', JSON.stringify(products));
+
+            // 2. 백엔드 API에도 저장 (있다면)
+            try {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    await fetch('http://localhost:5000/api/products', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-auth-token': token
+                        },
+                        body: JSON.stringify(product)
+                    });
+                }
+            } catch (error) {
+                console.log('백엔드 저장 실패 (로컬에는 저장됨):', error);
+            }
+
+            // 성공 메시지
+            document.getElementById('successMessage').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'none';
+            }, 3000);
+
+            // 폼 초기화
+            document.getElementById('productName').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('mainImage').value = '';
+            document.getElementById('detailImages').value = '';
+            document.getElementById('productDescription').value = '';
+            document.getElementById('productBadge').value = '';
+            document.getElementById('imagePreview').innerHTML = '';
+
+            alert(`상품이 성공적으로 등록되었습니다! 🎉\n\n상품 ID: ${newId}\n상품명: ${product.name}\n\n메인 페이지에서 확인하실 수 있습니다.`);
+        }
+
+        function getProductData() {
+            const name = document.getElementById('productName').value.trim();
+            const price = parseInt(document.getElementById('productPrice').value);
+            const category = document.getElementById('productCategory').value;
+            const mainImage = document.getElementById('mainImage').value.trim();
+            const description = document.getElementById('productDescription').value.trim();
+            const badge = document.getElementById('productBadge').value.trim();
+            const detailImages = document.getElementById('detailImages').value.trim().split('\n').filter(url => url);
+
+            // 필수 필드 검증
+            if (!name) {
+                alert('상품명을 입력해주세요.');
+                return null;
+            }
+            if (!price || price <= 0) {
+                alert('올바른 가격을 입력해주세요.');
+                return null;
+            }
+            if (!mainImage) {
+                alert('대표 이미지 URL을 입력해주세요.');
+                return null;
+            }
+
+            return {
+                name,
+                price,
+                category,
+                image: mainImage,
+                detailImages: detailImages.length > 0 ? detailImages : [mainImage],
+                description: description || name,
+                badge: badge || '',
+                isNew: badge.toLowerCase().includes('new'),
+                isBest: badge.toLowerCase().includes('베스트') || badge.toLowerCase().includes('best')
+            };
+        }
+    </script>
+</body>
+</html>

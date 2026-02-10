@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항 관리 - 관리자</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-notices-container {
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .admin-header h2 {
+            color: var(--deep-blue);
+            font-size: 2rem;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--deep-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #004d99;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .notice-form {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .notice-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .notices-table {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--deep-blue);
+            color: white;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .badge.important {
+            background: #ff4444;
+            color: white;
+        }
+
+        .badge.event {
+            background: #ff9800;
+            color: white;
+        }
+
+        .badge.normal {
+            background: var(--mint-green);
+            color: var(--deep-blue);
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #999;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content h3 {
+            color: var(--deep-blue);
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="logo"><a href="index.html" style="text-decoration:none; color:inherit;">JINSUNG<span>NATURE FOOD</span></a></h1>
+            <nav>
+                <ul>
+                    <li><a href="admin.html">관리자 홈</a></li>
+                    <li><a href="admin-notices.html" class="active">공지사항 관리</a></li>
+                    <li><a href="notices.html">공지사항 보기</a></li>
+                    <li><a href="index.html">쇼핑몰</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="admin-notices-container">
+            <div class="admin-header">
+                <h2>📢 공지사항 관리</h2>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" onclick="showNoticeForm()">+ 새 공지 작성</button>
+                    <button class="btn btn-success" onclick="showPopupForm()" style="background: #ff9800;">🔔 팝업 공지 만들기</button>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px;">
+                <button class="btn" onclick="switchTab('notices')" id="noticesTab" style="background: var(--deep-blue); color: white;">일반 공지</button>
+                <button class="btn" onclick="switchTab('popup')" id="popupTab" style="background: #e0e0e0; color: #666;">팝업 공지</button>
+            </div>
+
+            <!-- 일반 공지 섹션 -->
+            <div id="noticesSection">
+
+            <div class="notice-form" id="noticeForm">
+                <h3 id="formTitle">새 공지사항 작성</h3>
+                <form onsubmit="saveNotice(event)">
+                    <input type="hidden" id="noticeId">
+                    
+                    <div class="form-group">
+                        <label for="noticeCategory">카테고리 *</label>
+                        <select id="noticeCategory" required>
+                            <option value="normal">일반</option>
+                            <option value="important">중요</option>
+                            <option value="event">이벤트</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="noticeTitle">제목 *</label>
+                        <input type="text" id="noticeTitle" required placeholder="공지사항 제목을 입력하세요">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="noticeContent">내용 *</label>
+                        <textarea id="noticeContent" required placeholder="공지사항 내용을 입력하세요"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="noticeAuthor">작성자</label>
+                        <input type="text" id="noticeAuthor" value="관리자">
+                    </div>
+
+                    <div class="form-buttons">
+                        <button type="submit" class="btn btn-success">저장</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideNoticeForm()">취소</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="notices-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">카테고리</th>
+                            <th style="width: 40%;">제목</th>
+                            <th style="width: 15%;">작성자</th>
+                            <th style="width: 15%;">작성일</th>
+                            <th style="width: 20%;">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="noticesTableBody"></tbody>
+                </table>
+            </div>
+            </div>
+
+            <!-- 팝업 공지 섹션 -->
+            <div id="popupSection" style="display: none;">
+                <div class="notices-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 15%;">상태</th>
+                                <th style="width: 40%;">제목</th>
+                                <th style="width: 15%;">시작일</th>
+                                <th style="width: 15%;">종료일</th>
+                                <th style="width: 15%;">관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="popupTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 팝업 공지 작성 모달 -->
+    <div class="modal" id="popupModal" style="display: none;">
+        <div class="modal-content" style="max-width: 700px;">
+            <h3>🔔 팝업 공지 만들기</h3>
+            <form onsubmit="savePopup(event)">
+                <input type="hidden" id="popupId">
+                
+                <div class="form-group">
+                    <label for="popupTitle">팝업 제목 *</label>
+                    <input type="text" id="popupTitle" required placeholder="예: 설 연휴 배송 안내">
+                </div>
+
+                <div class="form-group">
+                    <label for="popupContent">팝업 내용 *</label>
+                    <textarea id="popupContent" required placeholder="팝업에 표시될 내용을 입력하세요" style="min-height: 150px;"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="popupImage">이미지 URL (선택)</label>
+                    <input type="url" id="popupImage" placeholder="https://...">
+                    <small style="color: #666; display: block; margin-top: 5px;">팝업에 표시할 이미지 URL (선택사항)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="popupLink">링크 URL (선택)</label>
+                    <input type="url" id="popupLink" placeholder="https://...">
+                    <small style="color: #666; display: block; margin-top: 5px;">클릭 시 이동할 URL (선택사항)</small>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label for="popupStartDate">시작일 *</label>
+                        <input type="date" id="popupStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="popupEndDate">종료일 *</label>
+                        <input type="date" id="popupEndDate" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="popupActive" checked>
+                        즉시 활성화
+                    </label>
+                </div>
+
+                <div class="form-buttons">
+                    <button type="submit" class="btn btn-success">저장</button>
+                    <button type="button" class="btn btn-secondary" onclick="closePopupModal()">취소</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Jinsung Nature Food. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        let editingNoticeId = null;
+
+        function loadNotices() {
+            const notices = JSON.parse(localStorage.getItem('notices')) || [];
+            displayNotices(notices);
+        }
+
+        function displayNotices(notices) {
+            const tbody = document.getElementById('noticesTableBody');
+            
+            if (notices.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <div>📭</div>
+                            <p>등록된 공지사항이 없습니다</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // 최신순 정렬
+            notices.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            tbody.innerHTML = notices.map(notice => `
+                <tr>
+                    <td>
+                        <span class="badge ${notice.category}">
+                            ${getCategoryName(notice.category)}
+                        </span>
+                    </td>
+                    <td><strong>${notice.title}</strong></td>
+                    <td>${notice.author}</td>
+                    <td>${formatDate(notice.date)}</td>
+                    <td>
+                        <button class="action-btn btn-primary" onclick="editNotice(${notice.id})">수정</button>
+                        <button class="action-btn btn-danger" onclick="deleteNotice(${notice.id})">삭제</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showNoticeForm() {
+            document.getElementById('formTitle').textContent = '새 공지사항 작성';
+            document.getElementById('noticeForm').classList.add('active');
+            clearForm();
+            editingNoticeId = null;
+        }
+
+        function hideNoticeForm() {
+            document.getElementById('noticeForm').classList.remove('active');
+            clearForm();
+            editingNoticeId = null;
+        }
+
+        function clearForm() {
+            document.getElementById('noticeId').value = '';
+            document.getElementById('noticeCategory').value = 'normal';
+            document.getElementById('noticeTitle').value = '';
+            document.getElementById('noticeContent').value = '';
+            document.getElementById('noticeAuthor').value = '관리자';
+        }
+
+        function saveNotice(event) {
+            event.preventDefault();
+
+            const notices = JSON.parse(localStorage.getItem('notices')) || [];
+            const category = document.getElementById('noticeCategory').value;
+            const title = document.getElementById('noticeTitle').value;
+            const content = document.getElementById('noticeContent').value;
+            const author = document.getElementById('noticeAuthor').value;
+
+            if (editingNoticeId) {
+                // 수정
+                const index = notices.findIndex(n => n.id === editingNoticeId);
+                if (index !== -1) {
+                    notices[index] = {
+                        ...notices[index],
+                        category,
+                        title,
+                        content,
+                        author,
+                        updatedDate: new Date().toISOString().split('T')[0]
+                    };
+                }
+                alert('공지사항이 수정되었습니다.');
+            } else {
+                // 새로 작성
+                const newNotice = {
+                    id: notices.length > 0 ? Math.max(...notices.map(n => n.id)) + 1 : 1,
+                    category,
+                    title,
+                    content,
+                    author,
+                    date: new Date().toISOString().split('T')[0]
+                };
+                notices.push(newNotice);
+                alert('공지사항이 등록되었습니다.');
+            }
+
+            localStorage.setItem('notices', JSON.stringify(notices));
+            hideNoticeForm();
+            loadNotices();
+        }
+
+        function editNotice(id) {
+            const notices = JSON.parse(localStorage.getItem('notices')) || [];
+            const notice = notices.find(n => n.id === id);
+            
+            if (notice) {
+                document.getElementById('formTitle').textContent = '공지사항 수정';
+                document.getElementById('noticeCategory').value = notice.category;
+                document.getElementById('noticeTitle').value = notice.title;
+                document.getElementById('noticeContent').value = notice.content;
+                document.getElementById('noticeAuthor').value = notice.author;
+                
+                editingNoticeId = id;
+                document.getElementById('noticeForm').classList.add('active');
+            }
+        }
+
+        function deleteNotice(id) {
+            if (!confirm('정말로 이 공지사항을 삭제하시겠습니까?')) {
+                return;
+            }
+
+            let notices = JSON.parse(localStorage.getItem('notices')) || [];
+            notices = notices.filter(n => n.id !== id);
+            localStorage.setItem('notices', JSON.stringify(notices));
+            
+            alert('공지사항이 삭제되었습니다.');
+            loadNotices();
+        }
+
+        function getCategoryName(category) {
+            const names = {
+                'important': '중요',
+                'event': '이벤트',
+                'normal': '일반'
+            };
+            return names[category] || '일반';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}.${month}.${day}`;
+        }
+
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', loadNotices);
+
+        // ===== 팝업 관리 기능 =====
+        let editingPopupId = null;
+
+        function switchTab(tab) {
+            const noticesTab = document.getElementById('noticesTab');
+            const popupTab = document.getElementById('popupTab');
+            const noticesSection = document.getElementById('noticesSection');
+            const popupSection = document.getElementById('popupSection');
+
+            if (tab === 'notices') {
+                noticesTab.style.background = 'var(--deep-blue)';
+                noticesTab.style.color = 'white';
+                popupTab.style.background = '#e0e0e0';
+                popupTab.style.color = '#666';
+                noticesSection.style.display = 'block';
+                popupSection.style.display = 'none';
+            } else {
+                popupTab.style.background = 'var(--deep-blue)';
+                popupTab.style.color = 'white';
+                noticesTab.style.background = '#e0e0e0';
+                noticesTab.style.color = '#666';
+                noticesSection.style.display = 'none';
+                popupSection.style.display = 'block';
+                loadPopups();
+            }
+        }
+
+        function loadPopups() {
+            const popups = JSON.parse(localStorage.getItem('popups')) || [];
+            displayPopups(popups);
+        }
+
+        function displayPopups(popups) {
+            const tbody = document.getElementById('popupTableBody');
+            
+            if (popups.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <div>📭</div>
+                            <p>등록된 팝업 공지가 없습니다</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // 최신순 정렬
+            popups.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+
+            tbody.innerHTML = popups.map(popup => {
+                const today = new Date().toISOString().split('T')[0];
+                const isActive = popup.active && popup.startDate <= today && popup.endDate >= today;
+                
+                return `
+                    <tr>
+                        <td>
+                            <span class="badge ${isActive ? 'important' : 'normal'}">
+                                ${isActive ? '활성' : '비활성'}
+                            </span>
+                        </td>
+                        <td><strong>${popup.title}</strong></td>
+                        <td>${formatDate(popup.startDate)}</td>
+                        <td>${formatDate(popup.endDate)}</td>
+                        <td>
+                            <button class="action-btn btn-primary" onclick="editPopup(${popup.id})">수정</button>
+                            <button class="action-btn btn-danger" onclick="deletePopup(${popup.id})">삭제</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function showPopupForm() {
+            document.getElementById('popupModal').style.display = 'flex';
+            clearPopupForm();
+            editingPopupId = null;
+            
+            // 오늘 날짜를 기본값으로 설정
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('popupStartDate').value = today;
+            
+            // 7일 후를 종료일 기본값으로
+            const weekLater = new Date();
+            weekLater.setDate(weekLater.getDate() + 7);
+            document.getElementById('popupEndDate').value = weekLater.toISOString().split('T')[0];
+        }
+
+        function closePopupModal() {
+            document.getElementById('popupModal').style.display = 'none';
+            clearPopupForm();
+            editingPopupId = null;
+        }
+
+        function clearPopupForm() {
+            document.getElementById('popupId').value = '';
+            document.getElementById('popupTitle').value = '';
+            document.getElementById('popupContent').value = '';
+            document.getElementById('popupImage').value = '';
+            document.getElementById('popupLink').value = '';
+            document.getElementById('popupStartDate').value = '';
+            document.getElementById('popupEndDate').value = '';
+            document.getElementById('popupActive').checked = true;
+        }
+
+        function savePopup(event) {
+            event.preventDefault();
+
+            const popups = JSON.parse(localStorage.getItem('popups')) || [];
+            const title = document.getElementById('popupTitle').value;
+            const content = document.getElementById('popupContent').value;
+            const image = document.getElementById('popupImage').value;
+            const link = document.getElementById('popupLink').value;
+            const startDate = document.getElementById('popupStartDate').value;
+            const endDate = document.getElementById('popupEndDate').value;
+            const active = document.getElementById('popupActive').checked;
+
+            if (new Date(startDate) > new Date(endDate)) {
+                alert('종료일은 시작일보다 이후여야 합니다.');
+                return;
+            }
+
+            if (editingPopupId) {
+                // 수정
+                const index = popups.findIndex(p => p.id === editingPopupId);
+                if (index !== -1) {
+                    popups[index] = {
+                        ...popups[index],
+                        title,
+                        content,
+                        image,
+                        link,
+                        startDate,
+                        endDate,
+                        active,
+                        updatedDate: new Date().toISOString().split('T')[0]
+                    };
+                }
+                alert('팝업 공지가 수정되었습니다.');
+            } else {
+                // 새로 작성
+                const newPopup = {
+                    id: popups.length > 0 ? Math.max(...popups.map(p => p.id)) + 1 : 1,
+                    title,
+                    content,
+                    image,
+                    link,
+                    startDate,
+                    endDate,
+                    active,
+                    createdDate: new Date().toISOString().split('T')[0]
+                };
+                popups.push(newPopup);
+                alert('팝업 공지가 등록되었습니다.');
+            }
+
+            localStorage.setItem('popups', JSON.stringify(popups));
+            closePopupModal();
+            loadPopups();
+        }
+
+        function editPopup(id) {
+            const popups = JSON.parse(localStorage.getItem('popups')) || [];
+            const popup = popups.find(p => p.id === id);
+            
+            if (popup) {
+                document.getElementById('popupTitle').value = popup.title;
+                document.getElementById('popupContent').value = popup.content;
+                document.getElementById('popupImage').value = popup.image || '';
+                document.getElementById('popupLink').value = popup.link || '';
+                document.getElementById('popupStartDate').value = popup.startDate;
+                document.getElementById('popupEndDate').value = popup.endDate;
+                document.getElementById('popupActive').checked = popup.active;
+                
+                editingPopupId = id;
+                document.getElementById('popupModal').style.display = 'flex';
+            }
+        }
+
+        function deletePopup(id) {
+            if (!confirm('정말로 이 팝업 공지를 삭제하시겠습니까?')) {
+                return;
+            }
+
+            let popups = JSON.parse(localStorage.getItem('popups')) || [];
+            popups = popups.filter(p => p.id !== id);
+            localStorage.setItem('popups', JSON.stringify(popups));
+            
+            alert('팝업 공지가 삭제되었습니다.');
+            loadPopups();
+        }
+
+        // 모달 외부 클릭 시 닫기
+        document.addEventListener('click', function(e) {
+            const popupModal = document.getElementById('popupModal');
+            if (e.target === popupModal) {
+                closePopupModal();
+            }
+        });
+    </script>
+</body>
+</html>

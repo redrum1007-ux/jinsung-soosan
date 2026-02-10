@@ -470,6 +470,67 @@
             await loadOrderSummary();
         });
     </script>
+    <script src="order-manager.js"></script>
+    <script>
+        // 주문 생성 헬퍼 함수
+        function createOrderFromCheckout() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            
+            const orderData = {
+                customer: {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value
+                },
+                shipping: {
+                    name: document.getElementById('name').value,
+                    phone: document.getElementById('phone').value,
+                    address: document.getElementById('address').value,
+                    addressDetail: document.getElementById('addressDetail').value,
+                    zipCode: document.getElementById('zipcode').value,
+                    memo: document.getElementById('deliveryNote').value
+                },
+                items: cart.map(item => ({
+                    productId: item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    image: item.image,
+                    options: item.options || ''
+                })),
+                payment: {
+                    method: document.querySelector('input[name="paymentMethod"]:checked')?.value || 'unknown',
+                    amount: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                    shippingCost: 3000,
+                    totalAmount: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) + 3000,
+                    status: 'completed'
+                }
+            };
+            
+            const order = createOrder(orderData);
+            return order;
+        }
+        
+        // 기존 completeOrder 함수 수정
+        function completeOrder(paymentData) {
+            try {
+                // 주문 생성
+                const order = createOrderFromCheckout();
+                
+                // 장바구니 비우기
+                localStorage.removeItem('cart');
+                
+                // 성공 메시지
+                alert(`결제가 완료되었습니다! 🎉\n주문번호: ${order.orderNumber}\n\n주문 내역은 주문 관리 페이지에서 확인하실 수 있습니다.`);
+                
+                // 메인 페이지로 이동
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('주문 생성 오류:', error);
+                alert('주문 처리 중 오류가 발생했습니다. 관리자에게 문의해주세요.');
+            }
+        }
+    </script>
 </body>
 
 </html>
